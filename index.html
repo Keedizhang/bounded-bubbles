@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Static Bounded Bubbles prototype for interactive dashboards.">
+    <title>Bounded Bubbles</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+      window.MathJax = {
+        tex: {
+          displayMath: [["\\[", "\\]"]],
+          inlineMath: [["\\(", "\\)"]],
+        },
+        chtml: {
+          scale: 0.96,
+        },
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <p class="eyebrow">Static GitHub Pages prototype</p>
+        <h1>Bounded Bubbles</h1>
+        <p class="intro-copy">
+          This example uses a smooth endpoint-preserving small-value warp, a reference fit, and a linear diameter baseline for large-value emphasis.
+        </p>
+      </header>
+
+      <nav class="page-tabs" role="tablist" aria-label="Page sections">
+        <button id="explore-tab-button" class="tab-button is-active" type="button" role="tab" aria-selected="true" aria-controls="explore-panel" data-tab-group="page" data-tab-target="explore-panel">Explore</button>
+        <button id="math-tab-button" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="math-panel" data-tab-group="page" data-tab-target="math-panel">Math explanation</button>
+      </nav>
+
+      <section id="explore-panel" class="page-tab-panel" role="tabpanel" aria-labelledby="explore-tab-button">
+      <section class="prototype-board" aria-label="Linked bounded bubble prototype">
+        <section class="condition-panel" aria-labelledby="condition-title">
+          <p id="condition-title" class="eyebrow">Condition</p>
+          <div class="condition-grid">
+            <section class="range-card range-card-compact condition-range-card" aria-labelledby="value-range-title">
+              <div class="range-card-header">
+                <div>
+                  <h3 id="value-range-title">V<sub>max</sub>/V<sub>min</sub></h3>
+                </div>
+                <output id="value-range-output" class="range-output">100</output>
+              </div>
+
+              <div id="value-range-control" class="range-control">
+                <span id="value-range-thumb-label" class="range-thumb-label">100</span>
+                <input id="value-max-slider" type="range" min="0" max="100" step="0.5" value="50" aria-label="Maximum dataset value">
+              </div>
+
+              <div class="range-axis range-axis-buttons" aria-label="Value-ratio presets">
+                <button type="button" data-value-anchor="2">1</button>
+                <button type="button" data-value-anchor="300">300</button>
+                <button type="button" data-value-anchor="100000">10<sup>5</sup></button>
+                <button type="button" data-value-anchor="10000000000">10<sup>10</sup></button>
+              </div>
+            </section>
+
+            <output id="condition-operator" class="condition-operator" aria-label="Value spread comparison">></output>
+
+            <section id="diameter-range-card" class="range-card range-card-compact condition-range-card" aria-labelledby="diameter-range-title">
+              <div class="range-card-header">
+                <div>
+                  <h3 id="diameter-range-title">D<sub>max</sub>/D<sub>min</sub></h3>
+                </div>
+                <output id="diameter-range-output" class="range-output">5</output>
+              </div>
+
+              <div id="diameter-range-control" class="range-control">
+                <span id="diameter-min-thumb-label" class="range-thumb-label range-thumb-label-min">12px</span>
+                <span id="diameter-max-thumb-label" class="range-thumb-label range-thumb-label-max">64px</span>
+                <input id="diameter-min-slider" type="range" min="8" max="96" step="1" value="12" aria-label="Minimum bubble diameter">
+                <input id="diameter-max-slider" type="range" min="8" max="96" step="1" value="64" aria-label="Maximum bubble diameter">
+              </div>
+
+              <div class="range-axis" aria-hidden="true">
+                <span id="diameter-axis-min">8.0px</span>
+                <span id="diameter-axis-max">96.0px</span>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="insights-panel" aria-labelledby="insights-title">
+          <p id="insights-title" class="eyebrow">Insights</p>
+          <p id="tuning-comparison-note" class="tuning-comparison-note insights-note">
+            Vmax/Vmin = 100 &gt; (Dmax/Dmin)^2 = 25, variation of bubble size will be visually compressed.
+          </p>
+        </section>
+
+        <section class="plot-pane" aria-labelledby="plot-title">
+          <div class="panel-title-row">
+            <div>
+              <p class="eyebrow">Example distribution</p>
+              <h2 id="plot-title">Bubble map</h2>
+            </div>
+            <span class="status-pill">Adjust range or click a bubble</span>
+          </div>
+
+          <div id="bubble-map" class="bubble-map" aria-label="Example value bubbles"></div>
+        </section>
+
+        <section class="workflow-pane" aria-label="Emphasis controls and diameter mapping">
+          <section class="control-panel" aria-labelledby="controls-title">
+            <div class="panel-title-row">
+              <div>
+                <p class="eyebrow">Tuning</p>
+                <h2 id="controls-title">Amplify the difference between:</h2>
+              </div>
+              <output id="emphasis-output" class="parameter-readout emphasis-readout" for="emphasis-slider">e = 0.00</output>
+            </div>
+
+            <div class="emphasis-strip" aria-label="Emphasis presets and slider">
+              <div class="emphasis-end-labels">
+                <button class="preset-button" type="button" data-preset="small">Small values</button>
+                <button class="preset-button" type="button" data-preset="large">Large values</button>
+              </div>
+              <label class="slider-field emphasis-slider-field" for="emphasis-slider">
+                <input id="emphasis-slider" type="range" min="-1" max="1" step="0.01" value="0">
+                <span class="slider-axis" aria-hidden="true">
+                  <span>-1.00</span>
+                  <span>0</span>
+                  <span>1.00</span>
+                </span>
+                <span id="emphasis-label" class="sr-only">Reference fit</span>
+              </label>
+            </div>
+          </section>
+
+          <section id="boundary-panel" class="boundary-panel" aria-live="polite" hidden></section>
+
+          <section class="curve-panel analysis-panel" aria-labelledby="analysis-title">
+            <div class="view-tabs" role="tablist" aria-label="Diameter mapping views">
+              <button id="curve-view-tab" class="tab-button is-active" type="button" role="tab" aria-selected="true" aria-controls="curve-view-panel" data-tab-group="analysis" data-tab-target="curve-view-panel">Curve</button>
+              <button id="table-view-tab" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="table-view-panel" data-tab-group="analysis" data-tab-target="table-view-panel">Table</button>
+            </div>
+
+            <div id="curve-view-panel" class="nested-tab-panel" role="tabpanel" aria-labelledby="curve-view-tab">
+              <div id="curve-chart-content">
+                <svg id="curve-preview" class="curve-preview" viewBox="0 0 640 210" role="img" aria-label="Transfer curve preview"></svg>
+                <ul class="curve-legend" aria-label="Curve legend">
+                  <li><span class="legend-swatch legend-linear"></span>Linear diameter</li>
+                  <li><span class="legend-swatch legend-sqrt"></span>Raw sqrt reference</li>
+                  <li><span class="legend-swatch legend-fit"></span>Reference fit</li>
+                  <li><span class="legend-swatch legend-emphasis"></span>Emphasis</li>
+                </ul>
+              </div>
+              <div id="range-recommendation-panel" class="recommendation-panel" hidden></div>
+            </div>
+
+            <div id="table-view-panel" class="nested-tab-panel" role="tabpanel" aria-labelledby="table-view-tab" hidden>
+              <div class="table-panel-inner">
+                <div class="panel-title-row">
+                  <div>
+                    <p class="eyebrow">Linked calculation table</p>
+                    <h3 id="comparison-title">Diameter values</h3>
+                  </div>
+                  <span class="status-pill">Updates with e</span>
+                </div>
+                <div class="table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th scope="col">Value</th>
+                        <th scope="col">Linear diameter</th>
+                        <th scope="col">Raw sqrt reference diameter</th>
+                        <th scope="col">Reference fit diameter</th>
+                        <th scope="col">Emphasis diameter</th>
+                        <th scope="col">Δ from previous</th>
+                      </tr>
+                    </thead>
+                    <tbody id="comparison-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+      </section>
+      </section>
+
+      <section id="math-panel" class="page-tab-panel" role="tabpanel" aria-labelledby="math-tab-button" hidden>
+        <section class="formula-panel formula-page" aria-labelledby="formula-title">
+          <div class="panel-title-row">
+            <div>
+              <p class="eyebrow">Step-by-step explanation</p>
+              <h2 id="formula-title">Bubble diameter formula</h2>
+            </div>
+          </div>
+
+          <p class="formula-intro">
+            Three interpretable curves are blended by the emphasis slider: a reference fit, a small-value lift, and a linear-diameter target.
+          </p>
+
+          <p id="formula-boundary-note" class="constraint-note" hidden>
+            Formula hidden because this range exceeds the recommended use of bounded emphasis.
+          </p>
+
+          <div class="math-step">
+            <h3>1. Compare the data range with the marker-size budget</h3>
+            <p>
+              \(M\) describes how far the values spread. \(K\) describes how much visual diameter is available. The reference exponent \(\alpha_0\) is capped at \(0.5\), because \(0.5\) is the area-proportional square-root mapping.
+            </p>
+            <div class="formula-display" aria-live="polite">
+              \[
+              M=\frac{V_{\max}}{V_{\min}},\qquad
+              K=\frac{D_{\max}}{D_{\min}},\qquad
+              \alpha_0=\min\left(0.5,\frac{\ln K}{\ln M}\right)
+              \]
+            </div>
+          </div>
+
+          <div class="math-step">
+            <h3>2. Build the reference fit</h3>
+            <p>
+              The reference fit is the neutral curve. If the marker-size budget is tight, \(\alpha_0&lt;0.5\) and the curve compresses the true square-root relation into \(D_{\min}\) through \(D_{\max}\). If the budget is sufficient, \(\alpha_0=0.5\) and the fit equals the raw sqrt reference.
+            </p>
+            <div class="formula-display">
+              \[
+              D_{\mathrm{fit}}(v)
+              =
+              D_{\min}
+              \left(
+              \frac{v}{V_{\min}}
+              \right)^{\alpha_0}
+              \]
+            </div>
+          </div>
+
+          <div class="math-step">
+            <h3>3. Locate each value in log space</h3>
+            <p>
+              \(x(v)\) runs from \(0\) at \(V_{\min}\) to \(1\) at \(V_{\max}\). This lets the small-value lift preserve both endpoints while changing the curve in between.
+            </p>
+            <div class="formula-display">
+              \[
+              x(v)=
+              \frac{\ln(v/V_{\min})}{\ln M}
+              \]
+            </div>
+          </div>
+
+          <div class="math-step">
+            <h3>4. Add a bounded small-value lift</h3>
+            <p>
+              When \(e&lt;0\), \(a\) becomes positive and the sine term lifts the middle of the fitted curve without moving \(D_{\min}\) or \(D_{\max}\). The coefficient \(c\) keeps this lift from exceeding the area-proportional exponent \(0.5\).
+            </p>
+            <div class="formula-display">
+              \[
+              D_{\mathrm{small}}(v,e)
+              =
+              D_{\mathrm{fit}}(v)
+              \exp\left(
+              \frac{a\,c\,\ln M}{\pi}
+              \sin(\pi x(v))
+              \right)
+              \]
+
+              \[
+              a=\max(-e,0),\qquad
+              c=\max\left(0,\min(\alpha_0,0.5-\alpha_0)\right)
+              \]
+            </div>
+          </div>
+
+          <div class="math-step">
+            <h3>5. Define the large-value target</h3>
+            <p>
+              When \(e&gt;0\), the curve moves toward a linear diameter mapping. This gives larger values more diameter separation while still respecting the selected diameter limits.
+            </p>
+            <div class="formula-display">
+              \[
+              D_{\mathrm{linear}}(v)
+              =
+              D_{\min}
+              +
+              (D_{\max}-D_{\min})
+              \frac{v-V_{\min}}{V_{\max}-V_{\min}}
+              \]
+            </div>
+          </div>
+
+          <div class="math-step">
+            <h3>6. Blend according to the emphasis slider</h3>
+            <p>
+              Negative \(e\) uses the small-value lift. \(e=0\) keeps the reference fit. Positive \(e\) morphs globally toward the linear-diameter target.
+            </p>
+            <div class="formula-display">
+              \[
+              D(v,e)
+              =
+              (1-b)D_{\mathrm{small}}(v,e)
+              +
+              bD_{\mathrm{linear}}(v)
+              \]
+
+              \[
+              b=\max(e,0)
+              \]
+            </div>
+          </div>
+
+          <ul class="formula-notes">
+            <li>\(e&lt;0\): lifts the fitted curve toward the small-value range.</li>
+            <li>\(e=0\): keeps the reference fit.</li>
+            <li>\(e&gt;0\): morphs the curve toward linear diameter.</li>
+            <li>\(c\): keeps the small-value lift bounded by the area-proportional exponent \(0.5\).</li>
+          </ul>
+        </section>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
