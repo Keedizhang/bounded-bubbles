@@ -19,18 +19,28 @@ This version is an exploratory display prototype:
 - Displays the current bounded global diameter formula, transfer curve preview, selected point details, diameter metrics, and calculation table.
 - Dynamically updates the plot, curve preview, metrics, and table together.
 
-It intentionally does not include the full user-testing/questionnaire flow yet.
+It also includes a lightweight browser-only testing mode for a short target-selection study.
 
-## Future User-Test Extension
+## Testing Mode
 
-The static architecture is still ready for the later study version:
+Click **Begin Testing** in the top-right corner of the app to run a 5-8 minute interaction study.
 
-- Generate a random participant ID in the browser, such as `P-483920`.
-- Record click/question events in memory during the session.
-- Export a downloadable JSON or CSV result file at the end.
-- Keep the app deployable on GitHub Pages without login or a server.
+The test compares the reference fit against task-aware emphasis using the same testing-specific `D_MIN = 12px`, `D_MAX = 128px`, `V_MIN = 1`, and `V_MAX = 1000` in all conditions. Six low-count tasks compare reference fit with `e=-1`; six high-count tasks compare reference fit with `e=1`. Correct low-count targets cover the `1x`, `2x`, `3x`, `5x`, and `10x` range rather than clustering at the minimum. Correct high-count targets are large but not maximum values, so the task tests whether large-value emphasis improves discrimination among near-large bubbles. Each testing plot includes fixed scale-anchor bubbles at `1` and `1000`, keeping the visible `D_MIN` and `D_MAX` identical across conditions. It records anonymous timing and click data locally in browser memory, including condition, task focus, viewport size, and browser user agent. It does not use a backend, account, analytics, upload, or personal data collection.
 
-The current `app.js` already includes small extension points for `participantId`, `events`, `createParticipantId()`, and `recordEvent()`.
+The main trial order is randomized each time the testing flow starts. The randomizer avoids showing the same dataset twice in a row, so the reference and emphasis versions of the same map should not appear back-to-back. The exported JSON includes a `randomizationId` and `mainTrialOrder` for later order-effect checks.
+
+At the end of the flow, download the JSON results or copy the JSON to the clipboard. Results can be aggregated manually across participants for later analysis.
+
+## Metrics
+
+The testing mode records:
+
+- Time-to-target-click for successful trials.
+- Wrong marker clicks.
+- Empty plot clicks.
+- Success rate.
+
+This is a lightweight synthetic interaction study. It measures target-selection friction, not full analytical understanding or perceptual accuracy.
 
 ## Concept
 

@@ -22,11 +22,19 @@
   <body>
     <main class="app-shell">
       <header class="app-header">
-        <p class="eyebrow">Static GitHub Pages prototype</p>
-        <h1>Bounded Bubbles</h1>
-        <p class="intro-copy">
-          This example uses a smooth endpoint-preserving small-value warp, a reference fit, and a linear diameter baseline for large-value emphasis.
-        </p>
+        <div class="app-header-main">
+          <p class="eyebrow">Static GitHub Pages prototype</p>
+          <h1>Bounded Bubbles</h1>
+          <p class="intro-copy">
+            This example uses a smooth endpoint-preserving small-value warp, a reference fit, and a linear diameter baseline for large-value emphasis.
+          </p>
+        </div>
+        <div class="testing-entry" aria-label="Interaction study entry point">
+          <button id="begin-testing-button" class="testing-entry-button" type="button" aria-describedby="begin-testing-note">
+            Begin Testing
+          </button>
+          <span id="begin-testing-note" class="testing-entry-note">Run a 5-8 minute interaction study</span>
+        </div>
       </header>
 
       <nav class="page-tabs" role="tablist" aria-label="Page sections">
@@ -312,6 +320,8 @@
           </ul>
         </section>
       </section>
+
+      <section id="testing-root" class="testing-root" aria-live="polite" hidden></section>
     </main>
 
     <script src="app.js"></script>
