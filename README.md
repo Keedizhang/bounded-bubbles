@@ -13,6 +13,7 @@ This version is an exploratory display prototype:
 - Lets the designer adjust the marker diameter range with a dual-handle slider.
 - Lets the designer tune emphasis with presets and a slider on the right.
 - Separates the exploratory prototype and the math explanation into two page-level tabs.
+- Adds an editorial `Example application` tab with two D3-rendered 100x datasets and separate after-view `e` sliders.
 - Lets the designer switch between the transfer curve preview and linked calculation table inside the prototype.
 - Uses example values from 1 to 100 by default, with an adjustable data ratio.
 - Preserves the selected marker diameter range exactly: default `D_MIN = 12px`, `D_MAX = 64px`.

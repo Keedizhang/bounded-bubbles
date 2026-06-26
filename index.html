@@ -38,11 +38,12 @@
       </header>
 
       <nav class="page-tabs" role="tablist" aria-label="Page sections">
-        <button id="explore-tab-button" class="tab-button is-active" type="button" role="tab" aria-selected="true" aria-controls="explore-panel" data-tab-group="page" data-tab-target="explore-panel">Explore</button>
+        <button id="example-tab-button" class="tab-button is-active" type="button" role="tab" aria-selected="true" aria-controls="example-panel" data-tab-group="page" data-tab-target="example-panel">Applications</button>
+        <button id="explore-tab-button" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="explore-panel" data-tab-group="page" data-tab-target="explore-panel">Method</button>
         <button id="math-tab-button" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="math-panel" data-tab-group="page" data-tab-target="math-panel">Math explanation</button>
       </nav>
 
-      <section id="explore-panel" class="page-tab-panel" role="tabpanel" aria-labelledby="explore-tab-button">
+      <section id="explore-panel" class="page-tab-panel" role="tabpanel" aria-labelledby="explore-tab-button" hidden>
       <section class="prototype-board" aria-label="Linked bounded bubble prototype">
         <section class="condition-panel" aria-labelledby="condition-title">
           <p id="condition-title" class="eyebrow">Condition</p>
@@ -191,6 +192,438 @@
       </section>
       </section>
 
+      <section id="example-panel" class="page-tab-panel" role="tabpanel" aria-labelledby="example-tab-button">
+        <article class="example-story" aria-label="Applications">
+          <section class="application-dataset application-dataset-eco" aria-labelledby="eco-title" data-example-dataset="eco" hidden>
+            <div class="dataset-narrative">
+              <div class="dataset-heading">
+                <p class="eyebrow">Urban Eco-Justice</p>
+                <h3 id="eco-title">LA park access under a fixed marker budget</h3>
+              </div>
+              <p>
+                The Los Angeles Countywide Park Needs Assessment demographics layer reports park acres per 1,000 residents alongside local demographic indicators. This view sorts the valid study areas by Acres/1000, drops the 10 smallest and 10 largest extreme values, and plots the remaining middle 161 study areas.
+              </p>
+              <dl class="dataset-facts">
+                <div>
+                  <dt>Source</dt>
+                  <dd>
+                    <a href="https://egis-lacounty.hub.arcgis.com/datasets/lacounty::l-a-county-park-needs-assessment-demographics/about" target="_blank" rel="noopener">
+                      L.A. County Park Needs Assessment Demographics
+                    </a>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Bubble value</dt>
+                  <dd>Park acres per 1,000 residents</dd>
+                </div>
+              </dl>
+            </div>
+            <dl class="dataset-budget-row" aria-label="LA park needs value range and marker diameter budget">
+              <div>
+                <dt>V<sub>max</sub>/V<sub>min</sub></dt>
+                <dd><span class="ratio-badge">42.5 / 0.2467 ≈ 172.3x</span></dd>
+              </div>
+              <div>
+                <dt>D<sub>max</sub>/D<sub>min</sub></dt>
+                <dd><span class="ratio-badge">96px / 16px = 6x</span></dd>
+              </div>
+            </dl>
+            <div class="example-visual-card">
+              <div class="example-visual-header">
+                <span>Raw sqrt</span>
+                <span>General fit</span>
+                <span>Bounded emphasis</span>
+              </div>
+              <div class="example-plot-row">
+                <svg id="eco-example-svg" class="example-bubble-svg" viewBox="0 0 1320 440" role="img" aria-label="LA park access bubble comparison"></svg>
+                <div class="example-local-control" aria-label="LA park needs after-view emphasis control">
+                  <label class="example-slider-wrap example-local-slider-wrap" for="eco-example-emphasis-slider">
+                    <span class="example-local-control-title">e handle</span>
+                    <output id="eco-example-emphasis-output" class="example-emphasis-readout" for="eco-example-emphasis-slider">e = -1.00</output>
+                    <input id="eco-example-emphasis-slider" class="example-emphasis-slider" type="range" min="-1" max="0" step="0.01" value="-1" data-example-slider="eco" aria-label="LA park needs bounded bubbles emphasis parameter">
+                    <span class="example-slider-axis" aria-hidden="true">
+                      <span>-1</span>
+                      <span>0</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <details class="dataset-features-drawer">
+              <summary>Dataset features</summary>
+              <table class="dataset-summary-table">
+                <caption>Display subset features</caption>
+                <tbody>
+                  <tr>
+                    <th scope="row">Minimum</th>
+                    <td>Unincorporated El Monte / Unincorporated Monrovia, 0.246722 park acres per 1k residents</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Maximum</th>
+                    <td>City of Azusa, 42.5 park acres per 1k residents</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Rows shown</th>
+                    <td>161 of 181 valid positive, non-aggregate study areas; sorted ascending by Acres/1000</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Filter</th>
+                    <td>Exclude aggregate and non-participating rows, require positive Acres/1000 plus X/Y values, then drop the 10 smallest and 10 largest Acres/1000 records.</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Bubble value</th>
+                    <td>Source column: Acres/1000</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Axes</th>
+                    <td>X: Median Household Income; Y: No High School Diploma Pct</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">X/Y source</th>
+                    <td>Source columns from the PNA demographics CSV.</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="dataset-raw-table-host" data-example-table="eco"></div>
+            </details>
+          </section>
+
+          <section class="case-design-intro" aria-labelledby="language-design-title">
+            <div class="case-design-copy">
+              <h3 id="language-design-title">Small-Value Amplification: Language Communities at Human Scale</h3>
+              <p>
+                ELCat distinguishes speaker groups below and above 10,000, a meaningful threshold for reading language vulnerability alongside UNESCO's emphasis on transmission and institutional support. Raw sqrt sizing lets large families occlude one another, making individual bubbles hard to interact with or select. General fit compresses the range enough to recover touchable targets, and bounded emphasis with (e = -1) preserves the visual gap between red endangered languages below 10,000 speakers and brown near-endangered languages above it.
+              </p>
+            </div>
+            <figure class="case-design-figure">
+              <img src="public_data/language-communities-gpt.png" alt="Children using a museum touchscreen map of Canadian Indigenous language communities.">
+            </figure>
+          </section>
+
+          <section class="application-dataset application-dataset-language" aria-labelledby="language-design-title" data-example-dataset="language">
+            <div class="dataset-narrative">
+              <div class="dataset-visualized">
+                <p class="dataset-meta-label">Dataset used here</p>
+                <p>
+                  UNESCO's Canada and Greenland chapter reports 2006 mother-tongue populations for Aboriginal language families and categories. The display subset keeps those speaker counts while placing each bubble on a representative Canadian language point from Glottolog.
+                </p>
+              </div>
+              <dl class="dataset-budget-row" aria-label="Canadian language value range and marker diameter budget">
+                <div>
+                  <dt>V<sub>max</sub>/V<sub>min</sub></dt>
+                  <dd><span class="ratio-badge">152,000 / 1,200 ≈ 127x</span></dd>
+                </div>
+                <div>
+                  <dt>D<sub>max</sub>/D<sub>min</sub></dt>
+                  <dd><span class="ratio-badge">80px / 24px ≈ 3.3x</span></dd>
+                </div>
+              </dl>
+              <dl class="dataset-facts">
+                <div>
+                  <dt>Source</dt>
+                  <dd>
+                    <a href="https://unesdoc.unesco.org/ark:/48223/pf0000212034" target="_blank" rel="noopener">
+                      UNESCO Atlas, Canada and Greenland chapter, printed pp. 114-115
+                    </a>
+                    <span aria-hidden="true"> · </span>
+                    <a href="https://glottolog.org/" target="_blank" rel="noopener">
+                      Representative Glottolog points
+                    </a>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Bubble value</dt>
+                  <dd>2006 Aboriginal-language mother-tongue population</dd>
+                </div>
+              </dl>
+            </div>
+            <div class="example-visual-card">
+              <div class="example-plot-row example-focus-row">
+                <svg id="language-bounded-example-svg" class="example-bubble-svg example-bubble-svg-single" viewBox="0 0 1320 743" role="img" aria-label="Bounded emphasis view of endangered language speaker bubbles"></svg>
+                <div class="example-local-control" aria-label="UNESCO languages after-view emphasis control">
+                  <label class="example-slider-wrap example-local-slider-wrap" for="language-example-emphasis-slider">
+                    <span class="example-local-control-title">e handle</span>
+                    <output id="language-example-emphasis-output" class="example-emphasis-readout" for="language-example-emphasis-slider">e = -1.00</output>
+                    <input id="language-example-emphasis-slider" class="example-emphasis-slider" type="range" min="-1" max="0" step="0.01" value="-1" data-example-slider="language" aria-label="UNESCO language speakers bounded bubbles emphasis parameter">
+                    <span class="example-slider-axis" aria-hidden="true">
+                      <span>-1</span>
+                      <span>0</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+              <div class="example-visual-header">
+                <div class="example-step-card example-step-error">
+                  <span class="example-step-icon" aria-hidden="true">×</span>
+                  <strong>Raw sqrt</strong>
+                  <small>Large bubbles occlude one another, making individual bubbles hard to interact with or select.</small>
+                </div>
+                <span class="example-step-chevron" aria-hidden="true">›</span>
+                <div class="example-step-card example-step-warning">
+                  <span class="example-step-icon" aria-hidden="true">!</span>
+                  <strong>General fit</strong>
+                  <small>After uniform compression, the bubbles no longer overlap and can work as touch targets in a UI.</small>
+                </div>
+                <span class="example-step-chevron" aria-hidden="true">›</span>
+                <div class="example-step-card example-step-success">
+                  <span class="example-step-icon" aria-hidden="true">✓</span>
+                  <strong>Bounded emphasis</strong>
+                  <small>With e = -1, the visual gap remains between red endangered languages below 10,000 speakers and brown near-endangered languages above 10,000 speakers.</small>
+                </div>
+              </div>
+              <div class="example-plot-row example-plot-row-full example-comparison-row">
+                <svg id="language-example-svg" class="example-bubble-svg example-bubble-svg-comparison" viewBox="0 0 1800 430" role="img" aria-label="Endangered language speaker bubble comparison"></svg>
+              </div>
+            </div>
+            <details class="dataset-features-drawer">
+              <summary>Dataset features</summary>
+              <table class="dataset-summary-table">
+                <caption>Display subset features</caption>
+                <tbody>
+                  <tr>
+                    <th scope="row">Minimum</th>
+                    <td>Wakashan family, 1,200 mother-tongue speakers</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Maximum</th>
+                    <td>Algonquian family, 152,000 mother-tongue speakers</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Bubble value</th>
+                    <td>Mother-tongue population by family/category</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Source pages</th>
+                    <td>UNESCO Atlas, printed pp. 114-115; min/max values are on printed p. 115</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Axes</th>
+                    <td>X: representative longitude; Y: representative latitude, projected onto a Canada map</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">X/Y source</th>
+                    <td>Representative Glottolog language coordinates matched to each UNESCO family/category label. These are point anchors, not exact distribution polygons.</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Map source</th>
+                    <td>Canada country outline from Natural Earth Admin 0 Countries, 110m scale.</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="dataset-raw-table-host" data-example-table="language"></div>
+            </details>
+          </section>
+
+          <section class="application-dataset application-dataset-wealth" aria-labelledby="wealth-title" data-example-dataset="wealth" hidden>
+            <div class="dataset-narrative">
+              <div class="dataset-heading">
+                <p class="eyebrow">Case 5 · Wealth Inequality</p>
+                <h3 id="wealth-title">U.S. wealth percentiles at large-value emphasis</h3>
+              </div>
+              <p>
+                The World Inequality Database reports net personal wealth by percentile group. To keep the visual experiment in the bounded-bubbles range, this display slice uses equal-width one-percentile U.S. 2024 bins from p30-p31 through p94-p95, where average net worth spans a little over two orders of magnitude.
+              </p>
+              <dl class="dataset-facts">
+                <div>
+                  <dt>Source</dt>
+                  <dd>
+                    <a href="https://wid.world/data/" target="_blank" rel="noopener">
+                      World Inequality Database Data Explorer
+                    </a>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Bubble value</dt>
+                  <dd>Average net personal wealth, U.S. dollars</dd>
+                </div>
+              </dl>
+            </div>
+            <dl class="dataset-budget-row" aria-label="Wealth inequality value range and marker diameter budget">
+              <div>
+                <dt>V<sub>max</sub>/V<sub>min</sub></dt>
+                <dd><span class="ratio-badge">$1.65M / $11,959 ≈ 137.6x</span></dd>
+              </div>
+              <div>
+                <dt>D<sub>max</sub>/D<sub>min</sub></dt>
+                <dd><span class="ratio-badge">96px / 16px = 6x</span></dd>
+              </div>
+            </dl>
+            <div class="example-visual-card">
+              <div class="example-visual-header">
+                <span>Raw sqrt</span>
+                <span>General fit</span>
+                <span>Bounded emphasis</span>
+              </div>
+              <div class="example-plot-row">
+                <svg id="wealth-example-svg" class="example-bubble-svg" viewBox="0 0 1320 440" role="img" aria-label="Wealth inequality bubble comparison"></svg>
+                <div class="example-local-control" aria-label="WID wealth inequality after-view emphasis control">
+                  <label class="example-slider-wrap example-local-slider-wrap" for="wealth-example-emphasis-slider">
+                    <span class="example-local-control-title">e handle</span>
+                    <output id="wealth-example-emphasis-output" class="example-emphasis-readout" for="wealth-example-emphasis-slider">e = +1.00</output>
+                    <input id="wealth-example-emphasis-slider" class="example-emphasis-slider" type="range" min="0" max="1" step="0.01" value="1" data-example-slider="wealth" aria-label="WID wealth inequality bounded bubbles emphasis parameter">
+                    <span class="example-slider-axis" aria-hidden="true">
+                      <span>0</span>
+                      <span>+1</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <details class="dataset-features-drawer">
+              <summary>Dataset features</summary>
+              <table class="dataset-summary-table">
+                <caption>Display subset features</caption>
+                <tbody>
+                  <tr>
+                    <th scope="row">Minimum</th>
+                    <td>U.S. p30-p31, $11,958.70 average net worth</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Maximum</th>
+                    <td>U.S. p94-p95, $1,645,863.70 average net worth</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Rows shown</th>
+                    <td>17 one-percentile bins from the WID U.S. 2024 wealth distribution</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Filter</th>
+                    <td>Use positive average-wealth percentile bins and stop before the Top 1% so the display remains near the 100x-150x bounded-bubbles regime.</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Bubble value</th>
+                    <td><code>average_net_worth_usd</code>, derived from WID variable <code>ahwealj992</code></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Axes</th>
+                    <td>X: percentile rank; Y: wealth share percent, from WID variable <code>shwealj992</code> × 100</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="dataset-raw-table-host" data-example-table="wealth"></div>
+            </details>
+          </section>
+
+          <section class="case-design-intro" aria-labelledby="climate-design-title">
+            <div class="case-design-copy">
+              <h3 id="climate-design-title">Large-Value Amplification: Carbon Responsibility</h3>
+              <p>
+                With (e = 1), high emitters separate from lower-carbon industrial countries. Japan and Germany no longer read like the U.S., Australia, and Canada. This matters because the upper tail reflects structural differences in energy systems, transport, fossil-fuel reliance, and policy choices. Here the story is responsibility among industrial economies; lower-emission developing countries are already visually minor, so keeping them similarly small is acceptable.
+              </p>
+            </div>
+            <figure class="case-design-figure">
+              <img src="public_data/carbon-responsibility-gpt.png" alt="Contrasting compact low-carbon urban development with car-oriented suburban development.">
+            </figure>
+          </section>
+
+          <section class="application-dataset application-dataset-climate" aria-labelledby="climate-design-title" data-example-dataset="climate">
+            <div class="dataset-narrative">
+              <div class="dataset-visualized">
+                <p class="dataset-meta-label">Dataset used here</p>
+                <p>
+                  The Our World in Data CO2 dataset combines Global Carbon Project emissions with population, GDP, and primary energy fields. This 2022 country slice compares low-emission economies with high-emission industrial countries; x and y use log positioning, while the bubble radius is the only mark property controlled by e.
+                </p>
+              </div>
+              <dl class="dataset-budget-row" aria-label="Climate justice value range and marker diameter budget">
+                <div>
+                  <dt>V<sub>max</sub>/V<sub>min</sub></dt>
+                  <dd><span class="ratio-badge">14.802 / 0.088 ≈ 168.2x</span></dd>
+                </div>
+                <div>
+                  <dt>D<sub>max</sub>/D<sub>min</sub></dt>
+                  <dd><span class="ratio-badge">96px / 16px = 6x</span></dd>
+                </div>
+              </dl>
+              <dl class="dataset-facts">
+                <div>
+                  <dt>Source</dt>
+                  <dd>
+                    <a href="https://github.com/owid/co2-data" target="_blank" rel="noopener">
+                      Our World in Data CO2 GitHub repository
+                    </a>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Bubble value</dt>
+                  <dd>Annual CO2 emissions per person</dd>
+                </div>
+              </dl>
+            </div>
+            <div class="example-visual-card">
+              <div class="example-plot-row example-focus-row">
+                <svg id="climate-bounded-example-svg" class="example-bubble-svg example-bubble-svg-single" viewBox="0 0 1320 743" role="img" aria-label="Bounded emphasis view of climate justice bubbles"></svg>
+                <div class="example-local-control" aria-label="OWID climate justice after-view emphasis control">
+                  <label class="example-slider-wrap example-local-slider-wrap" for="climate-example-emphasis-slider">
+                    <span class="example-local-control-title">e handle</span>
+                    <output id="climate-example-emphasis-output" class="example-emphasis-readout" for="climate-example-emphasis-slider">e = +1.00</output>
+                    <input id="climate-example-emphasis-slider" class="example-emphasis-slider" type="range" min="0" max="1" step="0.01" value="1" data-example-slider="climate" aria-label="OWID climate justice bounded bubbles emphasis parameter">
+                    <span class="example-slider-axis" aria-hidden="true">
+                      <span>0</span>
+                      <span>+1</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+              <div class="example-visual-header">
+                <div class="example-step-card example-step-error">
+                  <span class="example-step-icon" aria-hidden="true">×</span>
+                  <strong>Raw sqrt</strong>
+                  <small>High-emission countries bunch into similarly large marks, so comparing the upper tail takes extra hovering.</small>
+                </div>
+                <span class="example-step-chevron" aria-hidden="true">›</span>
+                <div class="example-step-card example-step-warning">
+                  <span class="example-step-icon" aria-hidden="true">!</span>
+                  <strong>General fit</strong>
+                  <small>The global fit preserves the endpoints, but it compresses country-to-country differences inside the industrialized cluster.</small>
+                </div>
+                <span class="example-step-chevron" aria-hidden="true">›</span>
+                <div class="example-step-card example-step-success">
+                  <span class="example-step-icon" aria-hidden="true">✓</span>
+                  <strong>Bounded emphasis</strong>
+                  <small>With e = 1, wasteful high emitters separate from lower-carbon industrial countries: Japan and Germany no longer read like the U.S., Australia, and Canada.</small>
+                </div>
+              </div>
+              <div class="example-plot-row example-plot-row-full example-comparison-row">
+                <svg id="climate-example-svg" class="example-bubble-svg example-bubble-svg-comparison" viewBox="0 0 1800 430" role="img" aria-label="Climate justice bubble comparison"></svg>
+              </div>
+            </div>
+            <details class="dataset-features-drawer">
+              <summary>Dataset features</summary>
+              <table class="dataset-summary-table">
+                <caption>Display subset features</caption>
+                <tbody>
+                  <tr>
+                    <th scope="row">Minimum</th>
+                    <td>Malawi, 0.088 metric tons CO2 per person</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Maximum</th>
+                    <td>United States, 14.802 metric tons CO2 per person</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Rows shown</th>
+                    <td>18 country rows from 2022, the latest year where GDP, energy, and CO2 fields are jointly complete in this file</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Filter</th>
+                    <td>Require country ISO code, population, GDP, energy per capita, and CO2 per capita; exclude above-15-ton oil-exporter outliers to keep the display around the intended 150x comparison range.</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Bubble value</th>
+                    <td><code>per_capita_co2</code>, exported from OWID source column <code>co2_per_capita</code></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Axes</th>
+                    <td>X: GDP per capita, computed as <code>gdp / population</code>; Y: <code>energy_per_capita</code>. Both axes use log positioning; radius alone responds to e.</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="dataset-raw-table-host" data-example-table="climate"></div>
+            </details>
+          </section>
+        </article>
+      </section>
+
       <section id="math-panel" class="page-tab-panel" role="tabpanel" aria-labelledby="math-tab-button" hidden>
         <section class="formula-panel formula-page" aria-labelledby="formula-title">
           <div class="panel-title-row">
@@ -324,6 +757,7 @@
       <section id="testing-root" class="testing-root" aria-live="polite" hidden></section>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     <script src="app.js"></script>
   </body>
 </html>

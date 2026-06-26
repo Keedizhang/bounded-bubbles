@@ -1,0 +1,19 @@
+country,year,iso_code,gdp_per_capita,energy_per_capita,per_capita_co2,source_co2_column
+Malawi,2022,MWI,1286.7,392.6,0.088,co2_per_capita
+Niger,2022,NER,978.9,534.4,0.126,co2_per_capita
+Ethiopia,2022,ETH,2153.2,651.3,0.135,co2_per_capita
+Rwanda,2022,RWA,2085.3,498.2,0.143,co2_per_capita
+Chad,2022,TCD,1306.8,448.1,0.152,co2_per_capita
+Sierra Leone,2022,SLE,1411.3,766.9,0.174,co2_per_capita
+Kenya,2022,KEN,3508.8,1609.9,0.379,co2_per_capita
+India,2022,IND,7349.6,7057.2,1.986,co2_per_capita
+Indonesia,2022,IDN,12552.8,9859.9,2.719,co2_per_capita
+Brazil,2022,BRA,15156.0,17744.2,2.283,co2_per_capita
+Mexico,2022,MEX,15810.5,17858.7,3.528,co2_per_capita
+South Africa,2022,ZAF,11599.5,21580.7,6.874,co2_per_capita
+Germany,2022,DEU,46495.3,41094.1,7.942,co2_per_capita
+China,2022,CHN,18921.1,31235.7,8.218,co2_per_capita
+Japan,2022,JPN,38196.7,39974.9,8.237,co2_per_capita
+Canada,2022,CAN,45369.4,102122.4,14.107,co2_per_capita
+Australia,2022,AUS,51305.4,63386.5,14.659,co2_per_capita
+United States,2022,USA,57075.3,77627.7,14.802,co2_per_capita
