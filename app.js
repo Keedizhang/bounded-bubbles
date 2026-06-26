@@ -1638,17 +1638,24 @@ function clearActiveTrialTimers() {
   }
 }
 
-function beginTestingFlow() {
+function beginTestingFlow(options = {}) {
   clearActiveTrialTimers();
   testingState = createTestingState();
   setTestingMode(true);
   renderTestingFlow();
+  if (!options.skipRouteUpdate) updateAppRoute("begin-test");
 }
 
-function returnToPrototype() {
+function returnToPrototype(options = {}) {
   clearActiveTrialTimers();
   testingState = null;
   setTestingMode(false);
+  if (!options.skipRouteUpdate) {
+    const activePageTab =
+      document.querySelector('.page-tabs [data-tab-group="page"].is-active') ||
+      $("#example-tab-button");
+    updateAppRoute(routeNameForTab(activePageTab) || "applications");
+  }
 }
 
 function showTestingInstructions() {
@@ -2424,6 +2431,119 @@ function typesetPanel(panel) {
   }
 }
 
+const appRoutes = {
+  applications: {
+    path: "Applications",
+    tabId: "example-tab-button",
+    aliases: ["applications", "application", "appliations"],
+  },
+  method: {
+    path: "Method",
+    tabId: "explore-tab-button",
+    aliases: ["method", "methods", "explore"],
+  },
+  math: {
+    path: "Math",
+    tabId: "math-tab-button",
+    aliases: ["math", "math-explanation", "math_explanation"],
+  },
+  "begin-test": {
+    path: "Begin-Test",
+    aliases: ["begin-test", "begin-test", "begin-testing", "testing", "test"],
+  },
+};
+
+let isApplyingAppRoute = false;
+
+function normalizeRouteSegment(segment) {
+  return decodeURIComponent(segment || "")
+    .trim()
+    .replace(/^\/+|\/+$/g, "")
+    .toLowerCase();
+}
+
+function routeNameForSegment(segment) {
+  const normalized = normalizeRouteSegment(segment);
+  if (!normalized || normalized === "index.html") return "applications";
+  return (
+    Object.entries(appRoutes).find(([, route]) =>
+      [route.path, ...(route.aliases || [])]
+        .map(normalizeRouteSegment)
+        .includes(normalized)
+    )?.[0] || "applications"
+  );
+}
+
+function routeNameForTab(button) {
+  if (!button) return null;
+  return Object.entries(appRoutes).find(([, route]) => route.tabId === button.id)?.[0] || null;
+}
+
+function currentRouteSegment() {
+  const hashRoute = window.location.hash.match(/^#\/?(.+)$/)?.[1];
+  if (hashRoute) return hashRoute;
+  const routeParam = new URLSearchParams(window.location.search).get("route");
+  if (routeParam) return routeParam;
+  const pathParts = window.location.pathname.split("/").filter(Boolean);
+  return pathParts[pathParts.length - 1] || "";
+}
+
+function appBasePath() {
+  const pathParts = window.location.pathname.split("/").filter(Boolean);
+  const lastPart = pathParts[pathParts.length - 1] || "";
+  const lastIsRoute =
+    lastPart === "index.html" ||
+    Object.values(appRoutes).some((route) =>
+      [route.path, ...(route.aliases || [])]
+        .map(normalizeRouteSegment)
+        .includes(normalizeRouteSegment(lastPart))
+    );
+  const baseParts = lastIsRoute ? pathParts.slice(0, -1) : pathParts;
+  return `/${baseParts.join("/")}${baseParts.length ? "/" : ""}`;
+}
+
+function appRouteUrl(routeName) {
+  const route = appRoutes[routeName] || appRoutes.applications;
+  return `${appBasePath()}${route.path}`;
+}
+
+function updateAppRoute(routeName, mode = "push") {
+  const nextUrl = new URL(window.location.href);
+  if (window.location.protocol === "file:") {
+    nextUrl.hash = `/${(appRoutes[routeName] || appRoutes.applications).path}`;
+  } else {
+    nextUrl.pathname = appRouteUrl(routeName);
+    nextUrl.search = "";
+    nextUrl.hash = "";
+  }
+  if (nextUrl.href === window.location.href) return;
+  const method = mode === "replace" ? "replaceState" : "pushState";
+  window.history[method]({ appRoute: routeName }, "", nextUrl);
+}
+
+function applyAppRouteFromLocation(options = {}) {
+  const routeName = routeNameForSegment(currentRouteSegment());
+  const route = appRoutes[routeName] || appRoutes.applications;
+  isApplyingAppRoute = true;
+
+  if (routeName === "begin-test") {
+    beginTestingFlow({ skipRouteUpdate: true });
+  } else {
+    if (testingState) {
+      clearActiveTrialTimers();
+      testingState = null;
+    }
+    setTestingMode(false);
+    const button = document.getElementById(route.tabId);
+    if (button) activateTab(button);
+  }
+
+  isApplyingAppRoute = false;
+  if (options.replace !== false) {
+    updateAppRoute(routeName, "replace");
+  }
+}
+
 function activateTab(button) {
   const group = button.dataset.tabGroup;
   const targetId = button.dataset.tabTarget;
@@ -2443,11 +2563,18 @@ function activateTab(button) {
   });
 
   typesetPanel(panel);
+
+  if (group === "page" && !isApplyingAppRoute) {
+    const routeName = routeNameForTab(button);
+    if (routeName) updateAppRoute(routeName);
+  }
 }
 
 document.querySelectorAll("[data-tab-target]").forEach((button) => {
   button.addEventListener("click", () => activateTab(button));
 });
+
+window.addEventListener("popstate", () => applyAppRouteFromLocation({ replace: false }));
 
 document.addEventListener("pointerover", (event) => {
   const marker = event.target.closest(hoverTooltipSelector);
@@ -3620,3 +3747,4 @@ function initializeExampleApplications() {
 
 render();
 initializeExampleApplications();
+applyAppRouteFromLocation();

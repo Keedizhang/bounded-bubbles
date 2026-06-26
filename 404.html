@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bounded Bubbles</title>
+    <script>
+      (function () {
+        var repoBase = "/bounded-bubbles";
+        var path = window.location.pathname;
+        var route = path.indexOf(repoBase) === 0 ? path.slice(repoBase.length) : path;
+        var target = repoBase + "/?route=" + encodeURIComponent(route || "/Applications");
+        window.location.replace(target + window.location.hash);
+      })();
+    </script>
+  </head>
+  <body>
+    <p>Redirecting...</p>
+  </body>
+</html>
