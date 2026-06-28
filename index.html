@@ -26,7 +26,7 @@
           <p class="eyebrow">Static GitHub Pages prototype</p>
           <h1>Bounded Bubbles</h1>
           <p class="intro-copy">
-            This example uses a smooth endpoint-preserving small-value warp, a reference fit, and a linear diameter baseline for large-value emphasis.
+            An interactive demo for task-aware bubble size emphasis under fixed layout constraints. It shows how designers can tune bubble scaling to amplify small-value differences, preserve a neutral fit, or make large-value differences more visible.
           </p>
         </div>
         <div class="testing-entry" aria-label="Interaction study entry point">
@@ -146,6 +146,7 @@
             <div class="view-tabs" role="tablist" aria-label="Diameter mapping views">
               <button id="curve-view-tab" class="tab-button is-active" type="button" role="tab" aria-selected="true" aria-controls="curve-view-panel" data-tab-group="analysis" data-tab-target="curve-view-panel">Curve</button>
               <button id="table-view-tab" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="table-view-panel" data-tab-group="analysis" data-tab-target="table-view-panel">Table</button>
+              <button id="lineup-view-tab" class="tab-button" type="button" role="tab" aria-selected="false" aria-controls="lineup-view-panel" data-tab-group="analysis" data-tab-target="lineup-view-panel">Line up</button>
             </div>
 
             <div id="curve-view-panel" class="nested-tab-panel" role="tabpanel" aria-labelledby="curve-view-tab">
@@ -185,6 +186,12 @@
                     <tbody id="comparison-body"></tbody>
                   </table>
                 </div>
+              </div>
+            </div>
+
+            <div id="lineup-view-panel" class="nested-tab-panel" role="tabpanel" aria-labelledby="lineup-view-tab" hidden>
+              <div class="lineup-panel-inner">
+                <svg id="diameter-lineup" class="diameter-lineup" viewBox="0 0 760 360" role="img" aria-label="Line up of bubble diameters for raw sqrt, reference fit, e=1, and e=-1"></svg>
               </div>
             </div>
           </section>
@@ -293,7 +300,10 @@
               <p class="case-design-subtitle">Small-Value Amplification</p>
               <h3 id="language-design-title">Language Communities at Human Scale</h3>
               <p>
-                ELCat distinguishes speaker groups below and above 10,000, a meaningful threshold for reading language vulnerability alongside UNESCO's emphasis on transmission and institutional support. Raw sqrt sizing lets large families occlude one another, making individual bubbles hard to interact with or select. General fit compresses the range enough to recover touchable targets, and bounded emphasis with (e = -1) preserves the visual gap between red endangered languages below 10,000 speakers and brown near-endangered languages above it.
+                This case imagines a museum touchscreen map where children explore Canadian Indigenous language communities. Each bubble represents a language family or category, using speaker population as its size. Because this is a touch interface, the smallest bubbles must remain large enough to tap, not merely large enough to see.
+              </p>
+              <p>
+                A raw sqrt scale preserves area more faithfully, but it creates large dominant bubbles and leaves smaller communities difficult to touch or inspect. A general fit compresses the range into a usable marker budget, but it also makes some vulnerable low-speaker groups look too similar. With bounded emphasis at (e = -1), the map preserves a clearer visual separation between red communities below roughly 10,000 speakers and brown communities above that range. This is useful because speaker-count bands around 10,000 are meaningful when read alongside language-vitality factors such as transmission, institutional support, and domains of use.
               </p>
             </div>
             <figure class="case-design-figure">
@@ -302,6 +312,22 @@
           </section>
 
           <section class="application-dataset application-dataset-language" aria-labelledby="language-design-title" data-example-dataset="language">
+            <div class="example-visual-card example-focus-card">
+              <div class="example-plot-row example-focus-row">
+                <svg id="language-bounded-example-svg" class="example-bubble-svg example-bubble-svg-single" viewBox="0 0 1320 743" role="img" aria-label="Bounded emphasis view of endangered language speaker bubbles"></svg>
+                <div class="example-local-control" aria-label="UNESCO languages after-view emphasis control">
+                  <label class="example-slider-wrap example-local-slider-wrap" for="language-example-emphasis-slider">
+                    <span class="example-local-control-title">e handle</span>
+                    <output id="language-example-emphasis-output" class="example-emphasis-readout" for="language-example-emphasis-slider">e = -1.00</output>
+                    <input id="language-example-emphasis-slider" class="example-emphasis-slider" type="range" min="-1" max="0" step="0.01" value="-1" data-example-slider="language" aria-label="UNESCO language speakers bounded bubbles emphasis parameter">
+                    <span class="example-slider-axis" aria-hidden="true">
+                      <span>-1</span>
+                      <span>0</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
             <div class="dataset-narrative">
               <div class="dataset-visualized">
                 <p class="dataset-meta-label">Dataset used here</p>
@@ -338,20 +364,10 @@
                 </div>
               </dl>
             </div>
-            <div class="example-visual-card">
-              <div class="example-plot-row example-focus-row">
-                <svg id="language-bounded-example-svg" class="example-bubble-svg example-bubble-svg-single" viewBox="0 0 1320 743" role="img" aria-label="Bounded emphasis view of endangered language speaker bubbles"></svg>
-                <div class="example-local-control" aria-label="UNESCO languages after-view emphasis control">
-                  <label class="example-slider-wrap example-local-slider-wrap" for="language-example-emphasis-slider">
-                    <span class="example-local-control-title">e handle</span>
-                    <output id="language-example-emphasis-output" class="example-emphasis-readout" for="language-example-emphasis-slider">e = -1.00</output>
-                    <input id="language-example-emphasis-slider" class="example-emphasis-slider" type="range" min="-1" max="0" step="0.01" value="-1" data-example-slider="language" aria-label="UNESCO language speakers bounded bubbles emphasis parameter">
-                    <span class="example-slider-axis" aria-hidden="true">
-                      <span>-1</span>
-                      <span>0</span>
-                    </span>
-                  </label>
-                </div>
+            <div class="example-visual-card example-comparison-card">
+              <p class="example-section-title">Step by step improvement</p>
+              <div class="example-plot-row example-plot-row-full example-comparison-row">
+                <svg id="language-example-svg" class="example-bubble-svg example-bubble-svg-comparison" viewBox="0 0 1800 430" role="img" aria-label="Endangered language speaker bubble comparison"></svg>
               </div>
               <div class="example-visual-header">
                 <div class="example-step-card example-step-error">
@@ -371,9 +387,6 @@
                   <strong>Bounded emphasis</strong>
                   <small>With e = -1, the visual gap remains between red endangered languages below 10,000 speakers and brown near-endangered languages above 10,000 speakers.</small>
                 </div>
-              </div>
-              <div class="example-plot-row example-plot-row-full example-comparison-row">
-                <svg id="language-example-svg" class="example-bubble-svg example-bubble-svg-comparison" viewBox="0 0 1800 430" role="img" aria-label="Endangered language speaker bubble comparison"></svg>
               </div>
             </div>
             <details class="dataset-features-drawer">
@@ -510,7 +523,10 @@
               <p class="case-design-subtitle">Large-Value Amplification</p>
               <h3 id="climate-design-title">Carbon Responsibility</h3>
               <p>
-                With (e = 1), high emitters separate from lower-carbon industrial countries. Japan and Germany no longer read like the U.S., Australia, and Canada. This matters because the upper tail reflects structural differences in energy systems, transport, fossil-fuel reliance, and policy choices. Here the story is responsibility among industrial economies; lower-emission developing countries are already visually minor, so keeping them similarly small is acceptable.
+                This case visualizes country-level CO2 emissions per capita to compare carbon responsibility across economies. Each bubble represents a country, with position showing the broader emissions landscape and bubble size showing per-person emissions.
+              </p>
+              <p>
+                In this story, the key question is not how to distinguish the smallest emitters. Instead, the focus is on the upper tail: which industrial countries are especially carbon-intensive, and which are relatively lower-carbon? With a neutral compressed fit, high-emission countries can still read as one broad group. With bounded emphasis at (e = 1), wasteful high emitters separate more clearly from lower-carbon industrial countries. Japan and Germany no longer read like the U.S., Australia, and Canada. This makes visible structural differences in energy systems, transport patterns, fossil-fuel reliance, consumption, and policy choices. Lower-emission developing countries remain visually small, which is acceptable here because they are not the narrative focus.
               </p>
             </div>
             <figure class="case-design-figure">
@@ -519,6 +535,22 @@
           </section>
 
           <section class="application-dataset application-dataset-climate" aria-labelledby="climate-design-title" data-example-dataset="climate">
+            <div class="example-visual-card example-focus-card">
+              <div class="example-plot-row example-focus-row">
+                <svg id="climate-bounded-example-svg" class="example-bubble-svg example-bubble-svg-single" viewBox="0 0 1320 743" role="img" aria-label="Bounded emphasis view of climate justice bubbles"></svg>
+                <div class="example-local-control" aria-label="OWID climate justice after-view emphasis control">
+                  <label class="example-slider-wrap example-local-slider-wrap" for="climate-example-emphasis-slider">
+                    <span class="example-local-control-title">e handle</span>
+                    <output id="climate-example-emphasis-output" class="example-emphasis-readout" for="climate-example-emphasis-slider">e = +1.00</output>
+                    <input id="climate-example-emphasis-slider" class="example-emphasis-slider" type="range" min="0" max="1" step="0.01" value="1" data-example-slider="climate" aria-label="OWID climate justice bounded bubbles emphasis parameter">
+                    <span class="example-slider-axis" aria-hidden="true">
+                      <span>0</span>
+                      <span>+1</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
             <div class="dataset-narrative">
               <div class="dataset-visualized">
                 <p class="dataset-meta-label">Dataset used here</p>
@@ -551,20 +583,10 @@
                 </div>
               </dl>
             </div>
-            <div class="example-visual-card">
-              <div class="example-plot-row example-focus-row">
-                <svg id="climate-bounded-example-svg" class="example-bubble-svg example-bubble-svg-single" viewBox="0 0 1320 743" role="img" aria-label="Bounded emphasis view of climate justice bubbles"></svg>
-                <div class="example-local-control" aria-label="OWID climate justice after-view emphasis control">
-                  <label class="example-slider-wrap example-local-slider-wrap" for="climate-example-emphasis-slider">
-                    <span class="example-local-control-title">e handle</span>
-                    <output id="climate-example-emphasis-output" class="example-emphasis-readout" for="climate-example-emphasis-slider">e = +1.00</output>
-                    <input id="climate-example-emphasis-slider" class="example-emphasis-slider" type="range" min="0" max="1" step="0.01" value="1" data-example-slider="climate" aria-label="OWID climate justice bounded bubbles emphasis parameter">
-                    <span class="example-slider-axis" aria-hidden="true">
-                      <span>0</span>
-                      <span>+1</span>
-                    </span>
-                  </label>
-                </div>
+            <div class="example-visual-card example-comparison-card">
+              <p class="example-section-title">Step by step improvement</p>
+              <div class="example-plot-row example-plot-row-full example-comparison-row">
+                <svg id="climate-example-svg" class="example-bubble-svg example-bubble-svg-comparison" viewBox="0 0 1800 430" role="img" aria-label="Climate justice bubble comparison"></svg>
               </div>
               <div class="example-visual-header">
                 <div class="example-step-card example-step-error">
@@ -584,9 +606,6 @@
                   <strong>Bounded emphasis</strong>
                   <small>With e = 1, wasteful high emitters separate from lower-carbon industrial countries: Japan and Germany no longer read like the U.S., Australia, and Canada.</small>
                 </div>
-              </div>
-              <div class="example-plot-row example-plot-row-full example-comparison-row">
-                <svg id="climate-example-svg" class="example-bubble-svg example-bubble-svg-comparison" viewBox="0 0 1800 430" role="img" aria-label="Climate justice bubble comparison"></svg>
               </div>
             </div>
             <details class="dataset-features-drawer">

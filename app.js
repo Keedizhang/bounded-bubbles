@@ -233,6 +233,14 @@ function comparisonValues() {
   return Array.from(new Set(values)).sort((a, b) => a - b);
 }
 
+function lineupValues() {
+  const count = 32;
+  return Array.from({ length: count }, (_, index) => {
+    const t = count === 1 ? 0 : index / (count - 1);
+    return state.valueMin + (state.valueMax - state.valueMin) * t;
+  });
+}
+
 function diameterForValue(value, emphasis = state.emphasis) {
   return emphasizedDiameter(value, state.valueMin, state.valueMax, emphasis, state.dMin, state.dMax);
 }
@@ -491,10 +499,61 @@ function positionHoverTooltip(event) {
   hoverTooltipElement.style.top = `${Math.max(margin, top)}px`;
 }
 
+function tooltipPayloadAttribute(payload) {
+  return JSON.stringify(payload);
+}
+
+function tooltipPayloadPlainText(payload) {
+  if (!payload || typeof payload !== "object") return String(payload || "");
+  const lines = [`${payload.valueLabel || "Value"}: ${payload.valueText || ""}`];
+  if (payload.title) lines.push(payload.title);
+  (payload.items || []).forEach((item) => {
+    lines.push(`${item.label}: ${item.value}`);
+  });
+  return lines.join("\n");
+}
+
+function renderTooltipPayload(payload) {
+  if (!payload || typeof payload !== "object") {
+    return `<div class="tooltip-plain">${escapeHtml(String(payload || ""))}</div>`;
+  }
+
+  const items = (payload.items || [])
+    .filter((item) => item?.label && item?.value !== undefined && item?.value !== null)
+    .map(
+      (item) => `
+        <div>
+          <dt>${escapeHtml(item.label)}</dt>
+          <dd>${escapeHtml(item.value)}</dd>
+        </div>
+      `
+    )
+    .join("");
+
+  return `
+    <div class="structured-tooltip">
+      <div class="tooltip-value-block">
+        <span>${escapeHtml(payload.valueLabel || "Value")}</span>
+        <strong>${escapeHtml(payload.valueText || "")}</strong>
+      </div>
+      ${payload.title ? `<p class="tooltip-identity">${escapeHtml(payload.title)}</p>` : ""}
+      ${items ? `<dl class="tooltip-detail-list">${items}</dl>` : ""}
+    </div>
+  `;
+}
+
+function parseTooltipPayload(rawTooltip) {
+  try {
+    return JSON.parse(rawTooltip);
+  } catch {
+    return rawTooltip;
+  }
+}
+
 function showHoverTooltip(marker, event) {
   if (!marker?.dataset.tooltip) return;
   const tooltip = ensureHoverTooltip();
-  tooltip.textContent = marker.dataset.tooltip;
+  tooltip.innerHTML = renderTooltipPayload(parseTooltipPayload(marker.dataset.tooltip));
   tooltip.classList.add("is-visible");
   positionHoverTooltip(event);
 }
@@ -529,7 +588,7 @@ function renderBubbles() {
     const confidence = Math.round(node.y);
     const diameter = mapDiameterForValue(value, info);
     const radius = diameter / 2;
-    const valuesTooltip = mainBubbleTooltipText(value, severity, confidence);
+    const tooltipData = mainBubbleTooltipData(value, severity, confidence);
     const marker = document.createElement("button");
     marker.className = node.id === state.selectedId ? "bubble-marker is-selected" : "bubble-marker";
     marker.type = "button";
@@ -537,7 +596,7 @@ function renderBubbles() {
     marker.style.top = `${node.y}%`;
     marker.style.width = `${diameter}px`;
     marker.style.height = `${diameter}px`;
-    marker.dataset.tooltip = valuesTooltip;
+    marker.dataset.tooltip = tooltipPayloadAttribute(tooltipData);
     marker.setAttribute(
       "aria-label",
       `alert count ${formatValue(value)}, severity ${severity}, confidence ${confidence}, diameter ${formatPx(diameter)}`
@@ -560,30 +619,16 @@ function renderBubbles() {
     tooltip.style.left = `${node.x}%`;
     tooltip.style.top = `${node.y}%`;
     tooltip.setAttribute("aria-live", "polite");
-    tooltip.innerHTML = `
-      <dl>
-        <div>
-          <dt>Alert count</dt>
-          <dd>${formatValue(value)}</dd>
-        </div>
-        <div>
-          <dt>Severity</dt>
-          <dd>${formatValue(severity)}</dd>
-        </div>
-        <div>
-          <dt>Confidence</dt>
-          <dd>${formatValue(confidence)}</dd>
-        </div>
-        <div>
-          <dt>Radius</dt>
-          <dd>${formatPx(radius)}</dd>
-        </div>
-        <div>
-          <dt>Raw sqrt R</dt>
-          <dd>${formatPx(rawSqrtRadius)}</dd>
-        </div>
-      </dl>
-    `;
+    tooltip.innerHTML = renderTooltipPayload({
+      valueLabel: "Alert count",
+      valueText: formatValue(value),
+      items: [
+        { label: "Severity", value: formatValue(severity) },
+        { label: "Confidence", value: formatValue(confidence) },
+        { label: "Radius", value: formatPx(radius) },
+        { label: "Raw sqrt R", value: formatPx(rawSqrtRadius) },
+      ],
+    });
     map.appendChild(tooltip);
   });
 
@@ -659,6 +704,114 @@ function renderTable() {
     `;
     body.appendChild(row);
   });
+}
+
+function renderLineup() {
+  const svg = $("#diameter-lineup");
+  if (!svg) return;
+
+  svg.innerHTML = "";
+
+  const values = lineupValues();
+  const lineupDMin = state.dMin / 2;
+  const lineupDMax = state.dMax / 2;
+  const rows = [
+    {
+      label: "Raw sqrt reference",
+      className: "lineup-sqrt",
+      diameter: (value) => lineupDMin * Math.sqrt(value / state.valueMin),
+    },
+    {
+      label: "Reference fit",
+      className: "lineup-fit",
+      diameter: (value) =>
+        referenceFitDiameter(value, state.valueMin, state.valueMax, lineupDMin, lineupDMax),
+    },
+    {
+      label: "e = 1",
+      className: "lineup-large",
+      diameter: (value) =>
+        emphasizedDiameter(value, state.valueMin, state.valueMax, 1, lineupDMin, lineupDMax),
+    },
+    {
+      label: "e = -1",
+      className: "lineup-small",
+      diameter: (value) =>
+        emphasizedDiameter(value, state.valueMin, state.valueMax, -1, lineupDMin, lineupDMax),
+    },
+  ];
+  const rowDiameters = rows.map((row) => values.map((value) => row.diameter(value)));
+  const rowMaxDiameters = rowDiameters.map((diameters) => Math.max(...diameters));
+  const maxDiameter = Math.max(...rowMaxDiameters);
+  const width = 760;
+  const left = 32;
+  const right = Math.max(52, maxDiameter / 2 + 20);
+  const top = 62;
+  const rowGap = Math.max(96, maxDiameter + 56);
+  const bottom = maxDiameter + 42;
+  const height = top + rowGap * (rows.length - 1) + bottom;
+  const xStart = left;
+  const xEnd = width - right;
+  const step = values.length > 1 ? (xEnd - xStart) / (values.length - 1) : 0;
+
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+  rows.forEach((row, rowIndex) => {
+    const rowTop = top + rowIndex * rowGap;
+    const rowMaxDisplayDiameter = rowMaxDiameters[rowIndex];
+    const group = createSvgElement("g", {
+      class: `lineup-row ${row.className}`,
+    });
+
+    group.appendChild(
+      createSvgElement("text", {
+        class: "lineup-row-label",
+        x: xStart,
+        y: rowTop - 16,
+      })
+    ).textContent = row.label;
+
+    group.appendChild(
+      createSvgElement("line", {
+        class: "lineup-baseline",
+        x1: xStart,
+        x2: xEnd,
+        y1: rowTop,
+        y2: rowTop,
+      })
+    );
+
+    values.forEach((value, valueIndex) => {
+      const diameter = rowDiameters[rowIndex][valueIndex];
+      const displayDiameter = Math.max(1, diameter);
+      const circle = createSvgElement("circle", {
+        class: "lineup-circle",
+        cx: xStart + valueIndex * step,
+        cy: rowTop + displayDiameter / 2,
+        r: displayDiameter / 2,
+      });
+      circle.appendChild(
+        createSvgElement("title")
+      ).textContent = `${row.label}, v=${formatValue(value)}, D=${formatPx(diameter)}`;
+      group.appendChild(circle);
+    });
+
+    svg.appendChild(group);
+  });
+
+  [
+    [xStart, `v=${formatCompactValue(values[0])}`],
+    [xEnd, `v=${formatCompactValue(values[values.length - 1])}`],
+  ].forEach(([x, label], index) => {
+    svg.appendChild(
+      createSvgElement("text", {
+        class: `lineup-value-label ${index === 1 ? "lineup-value-label-end" : ""}`,
+        x,
+        y: height - 14,
+      })
+    ).textContent = label;
+  });
+
 }
 
 function setRangeInput(selector, min, max, step, value) {
@@ -972,7 +1125,7 @@ function renderCurve() {
 
 }
 
-const STUDY_VERSION = "bounded-bubbles-test-v3";
+const STUDY_VERSION = "bounded-bubbles-test-v4";
 const STUDY_MAX_TRIAL_DURATION_MS = 30000;
 const STUDY_MAIN_TRIAL_COUNT = 24;
 const STUDY_PRACTICE_TRIAL_COUNT = 1;
@@ -1031,53 +1184,53 @@ const studyCategoryStyles = {
 const studyTrialTemplates = [
   {
     datasetId: "sec-dataset-01",
-    taskPrompt: "Click the high-risk suspicious login cluster with 1 alert.",
+    taskPrompt: "Click the high-risk suspicious login cluster with 2 alerts.",
     targetId: "sec01-target",
     targetLabel: "North Gateway Login",
     targetCategory: "Suspicious Login",
     targetSeverity: 91,
     targetConfidence: 88,
-    targetAlertCount: 1,
+    targetAlertCount: 2,
   },
   {
     datasetId: "sec-dataset-02",
-    taskPrompt: "Click the high-risk malware cluster with 2 alerts.",
+    taskPrompt: "Click the high-risk malware cluster with 3 alerts.",
     targetId: "sec02-target",
     targetLabel: "Kernel Loader Beacon",
     targetCategory: "Malware",
     targetSeverity: 94,
     targetConfidence: 91,
-    targetAlertCount: 2,
+    targetAlertCount: 3,
   },
   {
     datasetId: "sec-dataset-03",
-    taskPrompt: "Click the data exfiltration cluster near the upper-right corner with 5 alerts.",
+    taskPrompt: "Click the data exfiltration cluster near the upper-right corner with 4 alerts.",
     targetId: "sec03-target",
     targetLabel: "Outbound Vault Probe",
     targetCategory: "Data Exfiltration",
     targetSeverity: 89,
     targetConfidence: 95,
-    targetAlertCount: 5,
+    targetAlertCount: 4,
   },
   {
     datasetId: "sec-dataset-04",
-    taskPrompt: "Click the suspicious login cluster with 10 alerts in the high-risk zone.",
+    taskPrompt: "Click the suspicious login cluster with 5 alerts in the high-risk zone.",
     targetId: "sec04-target",
     targetLabel: "Dormant Admin Login",
     targetCategory: "Suspicious Login",
     targetSeverity: 87,
     targetConfidence: 92,
-    targetAlertCount: 10,
+    targetAlertCount: 5,
   },
   {
     datasetId: "sec-dataset-05",
-    taskPrompt: "Click the high-confidence privilege escalation cluster with 3 alerts.",
+    taskPrompt: "Click the high-confidence privilege escalation cluster with 6 alerts.",
     targetId: "sec05-target",
     targetLabel: "Credential Replay Thread",
     targetCategory: "Privilege Escalation",
     targetSeverity: 86,
     targetConfidence: 96,
-    targetAlertCount: 3,
+    targetAlertCount: 6,
   },
   {
     datasetId: "sec-dataset-06",
@@ -1205,12 +1358,28 @@ function makeSecurityPoint(
   };
 }
 
-function mainBubbleTooltipText(value, severity, confidence) {
-  return `Alert count: ${formatValue(value)}\nSeverity: ${formatValue(severity)}\nConfidence: ${formatValue(confidence)}`;
+function mainBubbleTooltipData(value, severity, confidence) {
+  return {
+    valueLabel: "Alert count",
+    valueText: formatValue(value),
+    items: [
+      { label: "Severity", value: formatValue(severity) },
+      { label: "Confidence", value: formatValue(confidence) },
+    ],
+  };
 }
 
-function studyBubbleTooltipText(point) {
-  return `Name: ${point.label}\nAlert count: ${formatValue(point.alertCount)}\nSeverity: ${formatValue(point.severity)}\nConfidence: ${formatValue(point.confidence)}`;
+function studyBubbleTooltipData(point) {
+  return {
+    valueLabel: "Alert count",
+    valueText: formatValue(point.alertCount),
+    title: point.label,
+    items: [
+      { label: "Severity", value: formatValue(point.severity) },
+      { label: "Confidence", value: formatValue(point.confidence) },
+      { label: "Category", value: point.category },
+    ],
+  };
 }
 
 function categoryAt(index) {
@@ -1345,7 +1514,7 @@ function buildLargeValueSecurityPoints(template, templateIndex) {
 }
 
 function nearbyLowCountDistractorCounts(targetCount) {
-  return [1, 2, 3, 5, 10, 15, 24, 32]
+  return [1, 2, 3, 4, 5, 6, 8, 10, 15, 24, 32]
     .filter((alertCount) => alertCount !== targetCount)
     .sort(
       (a, b) =>
@@ -2125,8 +2294,8 @@ function renderStudyMarker(point, trial) {
   const diameter = studyDiameterForPoint(point, trial.condition);
   const left = clamp(point.severity, 0, 100);
   const top = 100 - clamp(point.confidence, 0, 100);
-  const valuesTooltip = studyBubbleTooltipText(point);
-  const title = `${valuesTooltip} | ${point.label} | ${point.category}`;
+  const tooltipData = studyBubbleTooltipData(point);
+  const title = tooltipPayloadPlainText(tooltipData);
   const label = point.showLabel
     ? `<span class="study-target-label" style="left: ${left}%; top: ${top}%;">${escapeHtml(point.label)}</span>`
     : "";
@@ -2137,7 +2306,7 @@ function renderStudyMarker(point, trial) {
       type="button"
       data-point-id="${escapeHtml(point.id)}"
       aria-label="${escapeHtml(title)}"
-      data-tooltip="${escapeHtml(valuesTooltip)}"
+      data-tooltip="${escapeHtml(tooltipPayloadAttribute(tooltipData))}"
       style="left: ${left}%; top: ${top}%; width: ${diameter.toFixed(2)}px; height: ${diameter.toFixed(2)}px; ${markerStyleForCategory(point.category)}"
     ></button>
     ${label}
@@ -2402,6 +2571,7 @@ function render() {
   renderFormula();
   renderTable();
   renderCurve();
+  renderLineup();
 }
 
 function updateConstraintRange(kind, edge, rawValue) {
@@ -3297,49 +3467,59 @@ function formatExampleTableValue(value, formatter) {
   return formatter ? formatter(value) : formatExampleRawNumber(value);
 }
 
-function exampleBubbleTooltipText(point, dataset) {
+function exampleBubbleTooltipData(point, dataset) {
   const valueLabel =
     dataset.valueLabel || (dataset.valueUnit === "acres/1k" ? "Acres/1k" : "Value");
   const flagEmoji =
     dataset.valueUnit === "t CO2/person" && point.isoCode
       ? countryFlagByIso3[point.isoCode]
       : "";
-  const lines = [
-    flagEmoji ? `${flagEmoji} ${point.name}` : `Name: ${point.name}`,
-    `${valueLabel}: ${dataset.valueFormatter(point.value)}`,
+  const items = [
+    { label: "Name", value: flagEmoji ? `${flagEmoji} ${point.name}` : point.name },
   ];
 
   if (point.year) {
-    lines.push(`Year: ${point.year}`);
+    items.push({ label: "Year", value: point.year });
   }
   if (point.percentile) {
-    lines.push(`Percentile bin: ${point.percentile}`);
+    items.push({ label: "Percentile bin", value: point.percentile });
   }
   if (point.isoCode) {
-    lines.push(`ISO code: ${point.isoCode}`);
+    items.push({ label: "ISO code", value: point.isoCode });
   }
 
   if (Number.isFinite(point.parkAcres)) {
-    lines.push(
-      `Park acres: ${Number(point.parkAcres).toLocaleString("en-US", {
+    items.push({
+      label: "Park acres",
+      value: Number(point.parkAcres).toLocaleString("en-US", {
         maximumFractionDigits: 3,
-      })}`
-    );
+      }),
+    });
   }
 
   if (point.representativeName) {
-    lines.push(`Representative point: ${point.representativeName}`);
+    items.push({ label: "Representative point", value: point.representativeName });
   }
   if (point.glottocode) {
-    lines.push(`Glottocode: ${point.glottocode}`);
+    items.push({ label: "Glottocode", value: point.glottocode });
   }
 
-  lines.push(
-    `${dataset.xTableLabel || dataset.xAxisLabel || "X"}: ${formatExampleTableValue(point.x, dataset.xValueFormatter)}`,
-    `${dataset.yTableLabel || dataset.yAxisLabel || "Y"}: ${formatExampleTableValue(point.y, dataset.yValueFormatter)}`
+  items.push(
+    {
+      label: dataset.xTableLabel || dataset.xAxisLabel || "X",
+      value: formatExampleTableValue(point.x, dataset.xValueFormatter),
+    },
+    {
+      label: dataset.yTableLabel || dataset.yAxisLabel || "Y",
+      value: formatExampleTableValue(point.y, dataset.yValueFormatter),
+    }
   );
 
-  return lines.join("\n");
+  return {
+    valueLabel,
+    valueText: dataset.valueFormatter(point.value),
+    items,
+  };
 }
 
 function renderExampleDataTables() {
@@ -3399,32 +3579,14 @@ function drawExampleDataset(dataset, emphasis) {
   const width = isSingleAfter ? 1320 : 1800;
   const height = isSingleAfter ? 743 : 430;
   const margin = isSingleAfter
-    ? { top: 92, right: 44, bottom: 90, left: 78 }
+    ? { top: 58, right: 44, bottom: 90, left: 78 }
     : { top: 18, right: 28, bottom: 20, left: 34 };
   const panelGap = isSingleAfter ? 0 : 42;
   const isGeoLayout = dataset.layout === "geo" && dataset.geoFeature;
   const isCleanMode = dataset.cleanMode === true;
   const panelSpecs = isSingleAfter
-    ? [
-        {
-          key: "after",
-          title: "Bounded emphasis",
-          subtitle: "Local reallocation with the same Dmin",
-        },
-      ]
-    : [
-        { key: "raw", title: "Raw sqrt", subtitle: "Area-proportional baseline" },
-        {
-          key: "fit",
-          title: "General fit",
-          subtitle: "Neutral alpha0 under fixed endpoints",
-        },
-        {
-          key: "after",
-          title: "Bounded emphasis",
-          subtitle: "Local reallocation with the same Dmin",
-        },
-      ];
+    ? [{ key: "after" }]
+    : [{ key: "raw" }, { key: "fit" }, { key: "after" }];
   const panelWidth =
     (width - margin.left - margin.right - panelGap * (panelSpecs.length - 1)) /
     panelSpecs.length;
@@ -3536,22 +3698,6 @@ function drawExampleDataset(dataset, emphasis) {
       .attr("data-panel-key", (panel) => panel.key)
       .attr("transform", (panel) => `translate(${panel.xOffset},${margin.top})`);
 
-    if (!isCleanMode && isSingleAfter) {
-      panelGroups
-        .append("text")
-        .attr("class", "example-panel-title")
-        .attr("x", 0)
-        .attr("y", -54)
-        .text((panel) => panel.title);
-
-      panelGroups
-        .append("text")
-        .attr("class", "example-panel-subtitle")
-        .attr("x", 0)
-        .attr("y", -24)
-        .text((panel) => panel.subtitle);
-    }
-
     if (isGeoLayout && !isCleanMode) {
       panelGroups
         .append("path")
@@ -3641,9 +3787,11 @@ function drawExampleDataset(dataset, emphasis) {
       bubbles.attr("data-tooltip", null).attr("aria-label", null);
     } else {
       bubbles
-        .attr("data-tooltip", (point) => exampleBubbleTooltipText(point, dataset))
+        .attr("data-tooltip", (point) =>
+          tooltipPayloadAttribute(exampleBubbleTooltipData(point, dataset))
+        )
         .attr("aria-label", (point) =>
-          exampleBubbleTooltipText(point, dataset).replace(/\n/g, " | ")
+          tooltipPayloadPlainText(exampleBubbleTooltipData(point, dataset)).replace(/\n/g, " | ")
         );
     }
 

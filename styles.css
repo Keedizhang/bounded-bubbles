@@ -240,14 +240,21 @@ h3 {
   align-content: center;
 }
 
-.case-design-subtitle {
-  max-width: 980px;
-  margin: 0;
+.case-design-subtitle,
+.dataset-meta-label,
+.example-section-title,
+.dataset-features-drawer summary {
   color: #1f5a54;
   font-size: 0.92rem;
   font-weight: 850;
   letter-spacing: 0;
   line-height: 1.1;
+  text-transform: none;
+}
+
+.case-design-subtitle {
+  max-width: 980px;
+  margin: 0;
 }
 
 .case-design-intro h3 {
@@ -372,11 +379,6 @@ h3 {
 
 .dataset-meta-label {
   margin: 0;
-  color: #667174;
-  font-size: 0.72rem;
-  font-weight: 820;
-  letter-spacing: 0;
-  text-transform: uppercase;
 }
 
 .dataset-visualized p:not(.dataset-meta-label) {
@@ -473,12 +475,7 @@ h3 {
   gap: 8px;
   align-items: center;
   min-height: 42px;
-  color: #1f282b;
-  font-size: 0.78rem;
-  font-weight: 860;
-  letter-spacing: 0;
   list-style: none;
-  text-transform: uppercase;
   cursor: pointer;
 }
 
@@ -491,8 +488,8 @@ h3 {
   flex: 0 0 auto;
   width: 8px;
   height: 8px;
-  border-right: 1.5px solid #667174;
-  border-bottom: 1.5px solid #667174;
+  border-right: 1.5px solid #1f5a54;
+  border-bottom: 1.5px solid #1f5a54;
   transform: rotate(45deg);
   transition: transform 120ms ease;
 }
@@ -570,6 +567,10 @@ h3 {
   min-width: 0;
 }
 
+.example-section-title {
+  margin: 0 0 10px;
+}
+
 .example-visual-header {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
@@ -578,6 +579,10 @@ h3 {
   margin: 0 0 12px 0;
   color: #576265;
   letter-spacing: 0;
+}
+
+.example-comparison-card .example-visual-header {
+  margin: 14px 0 0;
 }
 
 .example-step-card {
@@ -705,7 +710,7 @@ h3 {
 }
 
 .example-focus-row {
-  margin-bottom: 22px;
+  margin-bottom: 0;
 }
 
 .example-plot-row-full {
@@ -1670,29 +1675,95 @@ input[type="range"] {
   background: rgba(255, 255, 255, 0.96);
 }
 
-.bubble-tooltip dl {
+.bubble-tooltip > dl {
   display: grid;
   gap: 7px;
   margin: 0;
 }
 
-.bubble-tooltip div {
+.bubble-tooltip > dl > div {
   display: flex;
   justify-content: space-between;
   gap: 14px;
   align-items: baseline;
 }
 
-.bubble-tooltip dt {
+.bubble-tooltip > dl dt {
   color: var(--muted);
   font-weight: 800;
   white-space: nowrap;
 }
 
-.bubble-tooltip dd {
+.bubble-tooltip > dl dd {
   margin: 0;
   color: #121a1d;
   font-weight: 850;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.structured-tooltip {
+  display: grid;
+  gap: 8px;
+}
+
+.tooltip-value-block {
+  display: grid;
+  gap: 2px;
+}
+
+.tooltip-value-block span {
+  color: #667174;
+  font-size: 0.68rem;
+  font-weight: 820;
+  letter-spacing: 0;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.tooltip-value-block strong {
+  color: #121a1d;
+  font-size: 1.08rem;
+  font-weight: 900;
+  line-height: 1.08;
+}
+
+.tooltip-identity {
+  margin: 0;
+  color: #516064;
+  font-size: 0.74rem;
+  font-weight: 760;
+  line-height: 1.25;
+}
+
+.tooltip-detail-list {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+
+.tooltip-detail-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: baseline;
+}
+
+.tooltip-detail-list dt,
+.tooltip-detail-list dd {
+  color: #788386;
+  font-size: 0.7rem;
+  font-weight: 680;
+  line-height: 1.22;
+}
+
+.tooltip-detail-list dt {
+  white-space: nowrap;
+}
+
+.tooltip-detail-list dd {
+  margin: 0;
+  max-width: 180px;
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
@@ -1701,20 +1772,23 @@ input[type="range"] {
   position: fixed;
   z-index: 1000;
   max-width: min(320px, calc(100vw - 24px));
-  padding: 8px 10px;
+  padding: 9px 11px;
   border: 1px solid var(--line);
   border-radius: 7px;
   color: #1d282b;
   background: rgba(255, 255, 255, 0.98);
   box-shadow: 0 12px 28px rgba(23, 33, 36, 0.18);
   font-size: 0.76rem;
-  font-weight: 820;
+  font-weight: 700;
   line-height: 1.25;
-  white-space: pre-line;
   opacity: 0;
   pointer-events: none;
   transform: translateZ(0);
   transition: opacity 120ms ease;
+}
+
+.tooltip-plain {
+  white-space: pre-line;
 }
 
 .value-hover-tooltip.is-visible {
@@ -1905,6 +1979,67 @@ input[type="range"] {
 .legend-emphasis {
   color: #4f6f26;
   height: 4px;
+}
+
+.lineup-panel-inner {
+  min-width: 0;
+}
+
+.diameter-lineup {
+  display: block;
+  width: 100%;
+  min-height: 260px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfb;
+}
+
+.lineup-row-label {
+  fill: #3f4d50;
+  font-size: 15px;
+  font-weight: 820;
+}
+
+.lineup-baseline {
+  stroke: #d6dfdc;
+  stroke-width: 1;
+}
+
+.lineup-circle {
+  vector-effect: non-scaling-stroke;
+  stroke-width: 0.75;
+}
+
+.lineup-sqrt .lineup-circle {
+  fill: rgba(179, 107, 72, 0.24);
+  stroke: #b36b48;
+}
+
+.lineup-fit .lineup-circle {
+  fill: rgba(111, 109, 134, 0.24);
+  stroke: #6f6d86;
+}
+
+.lineup-small .lineup-circle {
+  fill: rgba(31, 90, 84, 0.24);
+  stroke: #1f5a54;
+}
+
+.lineup-large .lineup-circle {
+  fill: rgba(79, 111, 38, 0.24);
+  stroke: #4f6f26;
+}
+
+.lineup-value-label,
+.lineup-scale-note {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 760;
+}
+
+.lineup-value-label-end,
+.lineup-scale-note {
+  text-anchor: end;
 }
 
 .formula-intro,
