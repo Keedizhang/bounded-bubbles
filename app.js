@@ -1029,7 +1029,7 @@ function renderCurve() {
   svg.innerHTML = "";
 
   const width = 640;
-  const height = 210;
+  const height = 480;
   const left = 48;
   const right = 16;
   const top = 16;
@@ -1040,7 +1040,8 @@ function renderCurve() {
   const yMax = Math.max(sqrtReferenceDiameter(state.valueMax), state.dMax) * 1.04;
 
   function xScale(value) {
-    return left + logPosition(value, state.valueMin, state.valueMax) * plotWidth;
+    const t = (value - state.valueMin) / (state.valueMax - state.valueMin);
+    return left + clamp(t, 0, 1) * plotWidth;
   }
 
   function yScale(diameter) {
@@ -1051,10 +1052,9 @@ function renderCurve() {
   function makePath(valueToDiameter) {
     const pointsOnCurve = [];
     const steps = 120;
-    const m = state.valueMax / state.valueMin;
     for (let index = 0; index <= steps; index += 1) {
-      const x = index / steps;
-      const value = state.valueMin * Math.pow(m, x);
+      const t = index / steps;
+      const value = state.valueMin + (state.valueMax - state.valueMin) * t;
       pointsOnCurve.push([xScale(value), yScale(valueToDiameter(value))]);
     }
     return pointsOnCurve
@@ -2213,6 +2213,9 @@ function renderTestingWelcome() {
       </div>
       <p>
         This short test measures how quickly and accurately people can select low-count and high-count bubbles in a synthetic security dashboard. The study runs entirely in your browser. It does not collect your name, email, or any personal information. At the end, you can download an anonymous JSON file with your results.
+      </p>
+      <p class="testing-ethics-note">
+        Participation is voluntary and you may stop at any time. For questions about the study, use of results, or removing a submitted result file from analysis, contact <a href="mailto:keedizhang@gmail.com">keedizhang@gmail.com</a>.
       </p>
       ${renderDesktopWarning()}
       <dl class="testing-facts">
