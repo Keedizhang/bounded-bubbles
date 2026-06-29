@@ -1125,7 +1125,7 @@ function renderCurve() {
 
 }
 
-const STUDY_VERSION = "bounded-bubbles-test-v5";
+const STUDY_VERSION = "bounded-bubbles-test-v6";
 const STUDY_MAX_TRIAL_DURATION_MS = 30000;
 const STUDY_MAIN_TRIAL_COUNT = 24;
 const STUDY_PRACTICE_TRIAL_COUNT = 1;
@@ -1565,6 +1565,34 @@ function buildSecurityPoints(template, templateIndex) {
       )
     );
   });
+
+  if (targetCount >= 50) {
+    const lowValueBackgroundSpecs = [
+      [84, 72, 3],
+      [76, 86, 5],
+      [92, 58, 8],
+      [68, 78, 12],
+      [81, 49, 18],
+      [55, 84, 24],
+      [63, 57, 36],
+      [74, 40, 52],
+      [47, 72, 68],
+      [58, 48, 92],
+    ];
+    lowValueBackgroundSpecs.forEach(([severity, confidence, alertCount], distractorIndex) => {
+      const jitter = ((indexOffset + distractorIndex * 2) % 5) - 2;
+      pointsForTrial.push(
+        makeSecurityPoint(
+          `${template.datasetId}-low-background-${distractorIndex + 1}`,
+          `${categoryAt(distractorIndex + indexOffset + 5)} low-count background ${distractorIndex + 1}`,
+          categoryAt(distractorIndex + indexOffset + 5),
+          severity + jitter,
+          confidence - jitter,
+          alertCount
+        )
+      );
+    });
+  }
 
   const largeLowRiskSpecs = [
     [18, 27, 860],
