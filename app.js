@@ -1125,7 +1125,7 @@ function renderCurve() {
 
 }
 
-const STUDY_VERSION = "bounded-bubbles-test-v6";
+const STUDY_VERSION = "bounded-bubbles-test-v7";
 const STUDY_MAX_TRIAL_DURATION_MS = 30000;
 const STUDY_MAIN_TRIAL_COUNT = 24;
 const STUDY_PRACTICE_TRIAL_COUNT = 1;
@@ -1184,7 +1184,7 @@ const studyCategoryStyles = {
 const studyTrialTemplates = [
   {
     datasetId: "sec-dataset-01",
-    taskPrompt: "Click the high-risk suspicious login cluster with 3 alerts.",
+    taskPrompt: "Click the alert cluster with 3 alerts.",
     targetId: "sec01-target",
     targetLabel: "North Gateway Login",
     targetCategory: "Suspicious Login",
@@ -1194,7 +1194,7 @@ const studyTrialTemplates = [
   },
   {
     datasetId: "sec-dataset-02",
-    taskPrompt: "Click the high-risk malware cluster with 4 alerts.",
+    taskPrompt: "Click the alert cluster with 4 alerts.",
     targetId: "sec02-target",
     targetLabel: "Kernel Loader Beacon",
     targetCategory: "Malware",
@@ -1204,7 +1204,7 @@ const studyTrialTemplates = [
   },
   {
     datasetId: "sec-dataset-03",
-    taskPrompt: "Click the data exfiltration cluster near the upper-right corner with 5 alerts.",
+    taskPrompt: "Click the alert cluster with 5 alerts.",
     targetId: "sec03-target",
     targetLabel: "Outbound Vault Probe",
     targetCategory: "Data Exfiltration",
@@ -1214,7 +1214,7 @@ const studyTrialTemplates = [
   },
   {
     datasetId: "sec-dataset-04",
-    taskPrompt: "Click the suspicious login cluster with 10 alerts in the high-risk zone.",
+    taskPrompt: "Click the alert cluster with 10 alerts.",
     targetId: "sec04-target",
     targetLabel: "Dormant Admin Login",
     targetCategory: "Suspicious Login",
@@ -1224,22 +1224,22 @@ const studyTrialTemplates = [
   },
   {
     datasetId: "sec-dataset-05",
-    taskPrompt: "Click the high-confidence privilege escalation cluster with 72 alerts.",
+    taskPrompt: "Click the alert cluster with 72 alerts.",
     targetId: "sec05-target",
     targetLabel: "Credential Replay Thread",
     targetCategory: "Privilege Escalation",
-    targetSeverity: 86,
-    targetConfidence: 96,
+    targetSeverity: 58,
+    targetConfidence: 64,
     targetAlertCount: 72,
   },
   {
     datasetId: "sec-dataset-06",
-    taskPrompt: "Click the cloud misconfiguration cluster with 160 alerts near the high-risk zone.",
+    taskPrompt: "Click the alert cluster with 160 alerts.",
     targetId: "sec06-target",
     targetLabel: "Public Storage Policy",
     targetCategory: "Cloud Misconfiguration",
-    targetSeverity: 92,
-    targetConfidence: 86,
+    targetSeverity: 62,
+    targetConfidence: 60,
     targetAlertCount: 160,
   },
   {
@@ -2332,7 +2332,7 @@ function renderTestingInstructions() {
         For each trial, click the alert cluster described in the prompt as quickly and accurately as possible.
       </p>
       <p>
-        Some targets have low alert counts in the high-risk zone; others have high alert counts but are not the largest bubbles in the chart. Hovering a bubble shows alert count, severity, and confidence. Wrong clicks are allowed; keep trying until the correct bubble is selected or time runs out.
+        Some targets have low or mid-range alert counts; others have high alert counts but are not the largest bubbles in the chart. Hovering a bubble shows alert count, severity, and confidence. Wrong clicks are allowed; keep trying until the correct bubble is selected or time runs out.
       </p>
       <div class="testing-actions">
         <button class="test-button" type="button" data-test-action="start-practice">
