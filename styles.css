@@ -2339,6 +2339,46 @@ tbody tr:last-child td {
   line-height: 1.35;
 }
 
+.trial-countdown-wrap {
+  display: grid;
+  gap: 7px;
+  max-width: 360px;
+  margin-top: -8px;
+}
+
+.trial-countdown {
+  color: var(--teal-dark);
+  font-size: 0.9rem;
+  font-weight: 880;
+  letter-spacing: 0;
+}
+
+.trial-countdown.is-low {
+  color: var(--warning-dark);
+}
+
+.trial-countdown-track {
+  display: block;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #dce5e2;
+}
+
+.trial-countdown-meter {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: left center;
+  border-radius: inherit;
+  background: var(--teal);
+  transition: transform 180ms linear, background 120ms ease;
+}
+
+.trial-countdown-meter.is-low {
+  background: var(--warning);
+}
+
 .trial-feedback {
   min-height: 28px;
   color: var(--teal-dark);

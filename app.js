@@ -1125,7 +1125,7 @@ function renderCurve() {
 
 }
 
-const STUDY_VERSION = "bounded-bubbles-test-v4";
+const STUDY_VERSION = "bounded-bubbles-test-v5";
 const STUDY_MAX_TRIAL_DURATION_MS = 30000;
 const STUDY_MAIN_TRIAL_COUNT = 24;
 const STUDY_PRACTICE_TRIAL_COUNT = 1;
@@ -1184,63 +1184,63 @@ const studyCategoryStyles = {
 const studyTrialTemplates = [
   {
     datasetId: "sec-dataset-01",
-    taskPrompt: "Click the high-risk suspicious login cluster with 2 alerts.",
+    taskPrompt: "Click the high-risk suspicious login cluster with 3 alerts.",
     targetId: "sec01-target",
     targetLabel: "North Gateway Login",
     targetCategory: "Suspicious Login",
     targetSeverity: 91,
     targetConfidence: 88,
-    targetAlertCount: 2,
+    targetAlertCount: 3,
   },
   {
     datasetId: "sec-dataset-02",
-    taskPrompt: "Click the high-risk malware cluster with 3 alerts.",
+    taskPrompt: "Click the high-risk malware cluster with 4 alerts.",
     targetId: "sec02-target",
     targetLabel: "Kernel Loader Beacon",
     targetCategory: "Malware",
     targetSeverity: 94,
     targetConfidence: 91,
-    targetAlertCount: 3,
+    targetAlertCount: 4,
   },
   {
     datasetId: "sec-dataset-03",
-    taskPrompt: "Click the data exfiltration cluster near the upper-right corner with 4 alerts.",
+    taskPrompt: "Click the data exfiltration cluster near the upper-right corner with 5 alerts.",
     targetId: "sec03-target",
     targetLabel: "Outbound Vault Probe",
     targetCategory: "Data Exfiltration",
     targetSeverity: 89,
     targetConfidence: 95,
-    targetAlertCount: 4,
+    targetAlertCount: 5,
   },
   {
     datasetId: "sec-dataset-04",
-    taskPrompt: "Click the suspicious login cluster with 5 alerts in the high-risk zone.",
+    taskPrompt: "Click the suspicious login cluster with 10 alerts in the high-risk zone.",
     targetId: "sec04-target",
     targetLabel: "Dormant Admin Login",
     targetCategory: "Suspicious Login",
     targetSeverity: 87,
     targetConfidence: 92,
-    targetAlertCount: 5,
+    targetAlertCount: 10,
   },
   {
     datasetId: "sec-dataset-05",
-    taskPrompt: "Click the high-confidence privilege escalation cluster with 6 alerts.",
+    taskPrompt: "Click the high-confidence privilege escalation cluster with 72 alerts.",
     targetId: "sec05-target",
     targetLabel: "Credential Replay Thread",
     targetCategory: "Privilege Escalation",
     targetSeverity: 86,
     targetConfidence: 96,
-    targetAlertCount: 6,
+    targetAlertCount: 72,
   },
   {
     datasetId: "sec-dataset-06",
-    taskPrompt: "Click the cloud misconfiguration cluster with 10 alerts near the high-risk zone.",
+    taskPrompt: "Click the cloud misconfiguration cluster with 160 alerts near the high-risk zone.",
     targetId: "sec06-target",
     targetLabel: "Public Storage Policy",
     targetCategory: "Cloud Misconfiguration",
     targetSeverity: 92,
     targetConfidence: 86,
-    targetAlertCount: 10,
+    targetAlertCount: 160,
   },
   {
     datasetId: "sec-dataset-07",
@@ -1514,7 +1514,7 @@ function buildLargeValueSecurityPoints(template, templateIndex) {
 }
 
 function nearbyLowCountDistractorCounts(targetCount) {
-  return [1, 2, 3, 4, 5, 6, 8, 10, 15, 24, 32]
+  return [1, 2, 3, 4, 5, 6, 8, 10, 15, 24, 32, 50, 64, 80, 96, 120, 150, 180, 210]
     .filter((alertCount) => alertCount !== targetCount)
     .sort(
       (a, b) =>
@@ -1801,6 +1801,9 @@ function clearActiveTrialTimers() {
   if (testingState.runtime?.timeoutId) {
     window.clearTimeout(testingState.runtime.timeoutId);
   }
+  if (testingState.runtime?.countdownIntervalId) {
+    window.clearInterval(testingState.runtime.countdownIntervalId);
+  }
   if (testingState.advanceTimerId) {
     window.clearTimeout(testingState.advanceTimerId);
     testingState.advanceTimerId = null;
@@ -1875,8 +1878,27 @@ function startStudyTrial(trial, options) {
     hoverCount: 0,
     hoveredPointIds: new Set(),
     timeoutId: null,
+    countdownIntervalId: null,
   };
   renderTestingFlow();
+}
+
+function updateTrialCountdown(runtime) {
+  if (!runtime?.started || runtime.finished || !runtime.startPerformance) return;
+  const elapsed = performance.now() - runtime.startPerformance;
+  const remainingMs = clamp(STUDY_MAX_TRIAL_DURATION_MS - elapsed, 0, STUDY_MAX_TRIAL_DURATION_MS);
+  const seconds = Math.ceil(remainingMs / 1000);
+  const progress = remainingMs / STUDY_MAX_TRIAL_DURATION_MS;
+  const countdown = $("#trial-countdown");
+  const meter = $("#trial-countdown-meter");
+  if (countdown) {
+    countdown.textContent = `${seconds}s remaining`;
+    countdown.classList.toggle("is-low", seconds <= 10);
+  }
+  if (meter) {
+    meter.style.transform = `scaleX(${progress.toFixed(4)})`;
+    meter.classList.toggle("is-low", seconds <= 10);
+  }
 }
 
 function armTrialTimer() {
@@ -1898,6 +1920,10 @@ function armTrialTimer() {
     runtime.timeoutId = window.setTimeout(() => {
       finishActiveTrial(false, true);
     }, STUDY_MAX_TRIAL_DURATION_MS);
+    updateTrialCountdown(runtime);
+    runtime.countdownIntervalId = window.setInterval(() => {
+      updateTrialCountdown(runtime);
+    }, 250);
   });
 }
 
@@ -1909,6 +1935,10 @@ function finishActiveTrial(success, timedOut) {
   if (runtime.timeoutId) {
     window.clearTimeout(runtime.timeoutId);
     runtime.timeoutId = null;
+  }
+  if (runtime.countdownIntervalId) {
+    window.clearInterval(runtime.countdownIntervalId);
+    runtime.countdownIntervalId = null;
   }
 
   const endPerformance = performance.now();
@@ -2354,6 +2384,12 @@ function renderTestingTrial() {
         <span class="trial-progress">${progressText}</span>
       </div>
       <p class="trial-prompt">${escapeHtml(runtime.trial.taskPrompt)}</p>
+      <div class="trial-countdown-wrap" aria-live="polite">
+        <span id="trial-countdown" class="trial-countdown">${Math.ceil(STUDY_MAX_TRIAL_DURATION_MS / 1000)}s remaining</span>
+        <span class="trial-countdown-track" aria-hidden="true">
+          <span id="trial-countdown-meter" class="trial-countdown-meter"></span>
+        </span>
+      </div>
       <div class="trial-feedback${feedbackClass}" aria-live="assertive">${escapeHtml(runtime.feedback)}</div>
       ${renderStudyPlot(runtime.trial)}
     </section>
