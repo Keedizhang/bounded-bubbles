@@ -1125,7 +1125,7 @@ function renderCurve() {
 
 }
 
-const STUDY_VERSION = "bounded-bubbles-test-v7";
+const STUDY_VERSION = "bounded-bubbles-test-v8";
 const STUDY_MAX_TRIAL_DURATION_MS = 30000;
 const STUDY_MAIN_TRIAL_COUNT = 24;
 const STUDY_PRACTICE_TRIAL_COUNT = 1;
@@ -1543,6 +1543,7 @@ function buildSecurityPoints(template, templateIndex) {
 
   const targetCategoryIndex = studyCategories.indexOf(template.targetCategory);
   const targetCount = template.targetAlertCount;
+  const shouldThinMidValueBackground = targetCount >= 50;
   const nearbyOffsets = [
     { severity: -4, confidence: 3, categoryOffset: 0 },
     { severity: 4, confidence: -4, categoryOffset: 2 },
@@ -1575,9 +1576,6 @@ function buildSecurityPoints(template, templateIndex) {
       [81, 49, 18],
       [55, 84, 24],
       [63, 57, 36],
-      [74, 40, 52],
-      [47, 72, 68],
-      [58, 48, 92],
     ];
     lowValueBackgroundSpecs.forEach(([severity, confidence, alertCount], distractorIndex) => {
       const jitter = ((indexOffset + distractorIndex * 2) % 5) - 2;
@@ -1630,7 +1628,8 @@ function buildSecurityPoints(template, templateIndex) {
     [62, 35, 190],
     [39, 68, 130],
   ];
-  mediumRiskSpecs.forEach(([severity, confidence, alertCount], distractorIndex) => {
+  const activeMediumRiskSpecs = shouldThinMidValueBackground ? [] : mediumRiskSpecs;
+  activeMediumRiskSpecs.forEach(([severity, confidence, alertCount], distractorIndex) => {
     const jitter = ((indexOffset * 2 + distractorIndex) % 7) - 3;
     pointsForTrial.push(
       makeSecurityPoint(
@@ -1656,7 +1655,10 @@ function buildSecurityPoints(template, templateIndex) {
     [36, 76, 390],
     [79, 37, 580],
   ];
-  mixedDistractorSpecs.forEach(([severity, confidence, alertCount], distractorIndex) => {
+  const activeMixedDistractorSpecs = shouldThinMidValueBackground
+    ? mixedDistractorSpecs.filter(([, , alertCount]) => alertCount < 50 || alertCount > 300)
+    : mixedDistractorSpecs;
+  activeMixedDistractorSpecs.forEach(([severity, confidence, alertCount], distractorIndex) => {
     const jitter = ((indexOffset * 3 + distractorIndex) % 5) - 2;
     pointsForTrial.push(
       makeSecurityPoint(
